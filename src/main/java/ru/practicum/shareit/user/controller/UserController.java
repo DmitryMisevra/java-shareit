@@ -73,9 +73,7 @@ public class UserController {
         if (id <= 0) {
             throw new NotFoundException("Id пользователя должен быть положительным числом");
         }
-        return userService.getUserById(id)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new NotFoundException("Не найден пользователь с id:" + id));
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     /**

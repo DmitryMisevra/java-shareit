@@ -67,8 +67,7 @@ public class ItemController {
         if (itemId <= 0) {
             throw new NotFoundException("Id вещи должен быть положительным числом");
         }
-        ItemDto itemDto = itemService.updateItem(ownerId, itemId, updatedItemDto)
-                .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
+        ItemDto itemDto = itemService.updateItem(ownerId, itemId, updatedItemDto);
         log.debug("Обновлена вещь с id={}", itemDto.getId());
         return ResponseEntity.ok(itemDto);
     }
@@ -85,9 +84,7 @@ public class ItemController {
         if (id <= 0) {
             throw new NotFoundException("Id вещи должен быть положительным числом");
         }
-        return itemService.getItemById(id)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new NotFoundException("Не найдена вещь с id:" + id));
+        return ResponseEntity.ok(itemService.getItemById(id));
     }
 
     /**
@@ -117,6 +114,7 @@ public class ItemController {
         if (text.isEmpty()) {
             return ResponseEntity.ok(Collections.emptyList());
         }
+        log.debug("Получены искомый список {}", itemService.searchItemsByText(text));
         return ResponseEntity.ok(itemService.searchItemsByText(text));
     }
 }

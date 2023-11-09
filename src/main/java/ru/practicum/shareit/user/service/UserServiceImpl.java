@@ -14,6 +14,7 @@ import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,7 +35,9 @@ public class UserServiceImpl implements UserService {
         User user = Optional.ofNullable(userMapper.createdUserDtoToUser(createdUserDto))
                 .orElseThrow(() -> new IllegalStateException("Ошибка конвертации UserDto->User. Метод вернул null."));
         try {
-            return userMapper.userToUserDto(userRepository.save(user));
+            return Optional.ofNullable(userMapper.userToUserDto(userRepository.save(user)))
+                    .orElseThrow(() -> new IllegalStateException("Ошибка конвертации User->UserDto." +
+                            " Метод вернул null."));
         } catch (DataIntegrityViolationException e) {
             throw new EmailAlreadyExistsException("Пользователь с таким Email уже существует");
         }
@@ -49,7 +52,9 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new IllegalStateException("Ошибка конвертации UserDto->User. Метод вернул null."));
         updatedUser.updateWith(user);
         try {
-            return userMapper.userToUserDto(userRepository.save(updatedUser));
+            return Optional.ofNullable(userMapper.userToUserDto(userRepository.save(updatedUser)))
+                    .orElseThrow(() -> new IllegalStateException("Ошибка конвертации User->UserDto." +
+                            " Метод вернул null."));
         } catch (DataIntegrityViolationException e) {
             throw new EmailAlreadyExistsException("Пользователь с таким Email уже существует");
         }
@@ -57,8 +62,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @NonNull
-    public Optional<UserDto> getUserById(long id) {
-        return userRepository.findById(id).map(userMapper::userToUserDto);
+    public UserDto getUserById(long id) {
+        User foundedUser = userRepository.findById(id).orElseThrow(() ->
+                new NotFoundException("Пользователь не найден"));
+        return Optional.ofNullable(userMapper.userToUserDto(foundedUser)).orElseThrow(() ->
+                new IllegalStateException("Ошибка конвертации User->UserDto. Метод вернул null."));
     }
 
     @Transactional
@@ -72,6 +80,7 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> getUserList() {
         return userRepository.findAll().stream()
                 .map(userMapper::userToUserDto)
+                .sorted(Comparator.comparing(UserDto::getId))
                 .collect(Collectors.toList());
     }
 }
