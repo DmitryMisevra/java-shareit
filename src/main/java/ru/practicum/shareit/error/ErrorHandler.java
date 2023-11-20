@@ -39,13 +39,13 @@ public class ErrorHandler {
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse EmailAlreadyExistsException(final RuntimeException e) {
+    public ErrorResponse emailAlreadyExistsException(final RuntimeException e) {
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler(ForbiddenUserException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse ForbiddenUserException(final RuntimeException e) {
+    public ErrorResponse forbiddenUserException(final RuntimeException e) {
         return new ErrorResponse(e.getMessage());
     }
 
