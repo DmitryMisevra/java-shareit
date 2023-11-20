@@ -18,6 +18,7 @@ public class Item {
 
     /**
      * Cоздание копии текущего Item
+     *
      * @return item
      */
 
@@ -33,6 +34,7 @@ public class Item {
 
     /**
      * Обновление Item всех непустых полей
+     *
      * @return void
      */
 

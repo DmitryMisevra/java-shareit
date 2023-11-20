@@ -18,12 +18,15 @@ public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)
     User createdUserDtoToUser(CreatedUserDto createdUserDto);
+
     CreatedUserDto userToCreatedUserDto(User user);
 
     User updatedUserDtoToUser(UpdatedUserDto updatedUserDto);
+
     UpdatedUserDto userToUpdatedUserDto(User user);
 
     User userDtoToUser(UserDto userDto);
+
     UserDto userToUserDto(User user);
 
 

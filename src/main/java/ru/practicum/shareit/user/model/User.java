@@ -16,6 +16,7 @@ public class User {
 
     /**
      * Cоздание копии текущего User
+     *
      * @return User
      */
 
@@ -29,6 +30,7 @@ public class User {
 
     /**
      * Обновление User всех непустых полей
+     *
      * @return void
      */
 

@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
         if (isEmailUnique(user)) {
             return userRepository.updateUser(user);
         } else {
-           throw new EmailAlreadyExistsException("Email найден у другого пользователя");
+            throw new EmailAlreadyExistsException("Email найден у другого пользователя");
         }
     }
 

@@ -18,13 +18,16 @@ public interface ItemMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "ownerId", ignore = true)
     Item createdItemDtoToItem(CreatedItemDto createdUItemDto);
+
     CreatedItemDto itemToCreatedItemDto(Item item);
 
     @Mapping(target = "ownerId", ignore = true)
     Item updatedItemDtoToItem(UpdatedItemDto updatedUItemDto);
+
     UpdatedItemDto itemToUpdatedItemDto(Item item);
 
     Item itemDtoToItem(ItemDto itemDto);
+
     ItemDto itemToItemDto(Item item);
 
 }

@@ -38,14 +38,15 @@ public class ItemController {
 
     /**
      * Добавление вещи
+     *
      * @param ownerId        id собственника
      * @param createdItemDto createdItemDto
-     * @return  ItemDto
+     * @return ItemDto
      */
 
     @PostMapping
-    ResponseEntity<ItemDto> addItem (@RequestHeader("X-Sharer-User-Id") Long ownerId,
-                                     @Valid @RequestBody CreatedItemDto createdItemDto) {
+    ResponseEntity<ItemDto> addItem(@RequestHeader("X-Sharer-User-Id") Long ownerId,
+                                    @Valid @RequestBody CreatedItemDto createdItemDto) {
         if (ownerId == null) {
             throw new NotFoundException("Не указан id собственника вещи");
         }
@@ -59,14 +60,15 @@ public class ItemController {
 
     /**
      * Обновление данных о вещи
+     *
      * @param ownerId        id собственника
      * @param updatedItemDto updatedItemDto
-     * @return  ItemDto
+     * @return ItemDto
      */
 
     @PatchMapping(path = "/{id}")
-    ResponseEntity<ItemDto> updateItem (@RequestHeader("X-Sharer-User-Id") Long ownerId, @PathVariable long id,
-                                        @Valid @RequestBody UpdatedItemDto updatedItemDto) {
+    ResponseEntity<ItemDto> updateItem(@RequestHeader("X-Sharer-User-Id") Long ownerId, @PathVariable long id,
+                                       @Valid @RequestBody UpdatedItemDto updatedItemDto) {
         if (ownerId == null) {
             throw new NotFoundException("Не указан id собственника вещи");
         }
@@ -85,8 +87,9 @@ public class ItemController {
 
     /**
      * Поиск вещи по id
+     *
      * @param id id вещи
-     * @return  ItemDto
+     * @return ItemDto
      */
 
     @GetMapping(path = "/{id}")
@@ -102,6 +105,7 @@ public class ItemController {
 
     /**
      * Поиск вещи по id
+     *
      * @param ownerId id собственника
      * @return List<ItemDto>
      */
@@ -119,6 +123,7 @@ public class ItemController {
 
     /**
      * Поиск вещи по имени/описанию
+     *
      * @param text искомы текст
      * @return List<ItemDto>
      */

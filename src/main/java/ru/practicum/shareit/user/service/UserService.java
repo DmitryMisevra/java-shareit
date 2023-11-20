@@ -10,10 +10,14 @@ public interface UserService {
 
     @NonNull
     User createUser(@NonNull User user);
+
     Optional<User> updateUser(@NonNull User user);
+
     Optional<User> getUserById(long id);
+
     @NonNull
     void removeUserById(long id);
+
     @NonNull
     List<User> getUserList();
 }

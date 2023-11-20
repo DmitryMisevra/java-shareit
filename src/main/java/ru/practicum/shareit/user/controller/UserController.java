@@ -35,8 +35,9 @@ public class UserController {
 
     /**
      * Добавление пользователя
+     *
      * @param createdUserDto createdUserDto
-     * @return  UserDto
+     * @return UserDto
      */
 
     @PostMapping
@@ -50,14 +51,15 @@ public class UserController {
 
     /**
      * Обновление пользователя
+     *
      * @param id             id пользователя
      * @param updatedUserDto updatedUserDto
-     * @return  UserDto
+     * @return UserDto
      */
 
     @PatchMapping(path = "/{id}")
     ResponseEntity<UserDto> updateUser(@PathVariable long id,
-                                              @Valid @RequestBody UpdatedUserDto updatedUserDto) {
+                                       @Valid @RequestBody UpdatedUserDto updatedUserDto) {
         if (id <= 0) {
             throw new NotFoundException("Id пользователя должен быть положительным числом");
         }
@@ -72,8 +74,9 @@ public class UserController {
 
     /**
      * Поиск пользователя по id
+     *
      * @param id id пользователя
-     * @return  UserDto
+     * @return UserDto
      */
 
     @GetMapping(path = "/{id}")
@@ -89,6 +92,7 @@ public class UserController {
 
     /**
      * Удаление пользователя по id
+     *
      * @param id id пользователя
      * @return ResponseEntity со строковым сообщением.
      */
@@ -105,7 +109,8 @@ public class UserController {
 
     /**
      * Поиск пользователя по id
-     * @return  List<UserDto>
+     *
+     * @return List<UserDto>
      */
 
     @GetMapping

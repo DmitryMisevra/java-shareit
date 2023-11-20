@@ -9,7 +9,6 @@ import java.util.Optional;
 public interface UserRepository {
 
 
-
     User createUser(User user);
 
     Optional<User> updateUser(@NonNull User user);

@@ -1,10 +1,7 @@
 package ru.practicum.shareit.user.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
 import ru.practicum.shareit.user.validator.UniqueEmail;
 
 import javax.validation.constraints.Email;
