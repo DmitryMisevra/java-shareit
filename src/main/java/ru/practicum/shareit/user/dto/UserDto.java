@@ -11,6 +11,11 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
+
+/**
+ * UserDto передается в http-ответе для всех методов UserController
+ */
+
 @Data
 @Builder
 public class UserDto {

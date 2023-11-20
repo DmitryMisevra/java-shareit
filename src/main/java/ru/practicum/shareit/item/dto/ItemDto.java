@@ -8,6 +8,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
+/**
+ * itemDto передается в http-ответе для всех методов ItemController
+ */
+
 @Data
 @Builder
 public class ItemDto {

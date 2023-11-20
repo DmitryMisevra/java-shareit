@@ -6,6 +6,10 @@ import lombok.Data;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
+/**
+ * UpdatedItemDto передается при обновлении вещи
+ */
+
 @Data
 @Builder
 public class UpdatedItemDto {

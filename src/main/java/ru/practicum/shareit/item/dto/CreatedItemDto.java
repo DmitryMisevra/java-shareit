@@ -8,6 +8,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
+/**
+ * CreatedItemDto передается при создании вещи
+ */
+
 @Data
 @Builder
 public class CreatedItemDto {

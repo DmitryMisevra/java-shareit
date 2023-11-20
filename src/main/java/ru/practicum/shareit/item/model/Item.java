@@ -3,6 +3,10 @@ package ru.practicum.shareit.item.model;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * Базовая сущность Item
+ */
+
 @Data
 @Builder
 public class Item {
@@ -11,6 +15,11 @@ public class Item {
     private String description;
     private Long ownerId;
     private Boolean available;
+
+    /**
+     * Cоздание копии текущего Item
+     * @return item
+     */
 
     public Item copyOf() {
         return Item.builder()
@@ -21,6 +30,11 @@ public class Item {
                 .available(this.available)
                 .build();
     }
+
+    /**
+     * Обновление Item всех непустых полей
+     * @return void
+     */
 
     public void updateWith(Item other) {
         if (other.getName() != null) {

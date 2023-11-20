@@ -31,8 +31,13 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
-
     private final UserMapper userMapper;
+
+    /**
+     * Добавление пользователя
+     * @param createdUserDto createdUserDto
+     * @return  UserDto
+     */
 
     @PostMapping
     ResponseEntity<UserDto> createUser(@Valid @RequestBody CreatedUserDto createdUserDto) {
@@ -42,6 +47,13 @@ public class UserController {
         log.debug("Добавлен новый пользователь с id={}", createdUser.getId());
         return ResponseEntity.ok(userMapper.userToUserDto(createdUser));
     }
+
+    /**
+     * Обновление пользователя
+     * @param id             id пользователя
+     * @param updatedUserDto updatedUserDto
+     * @return  UserDto
+     */
 
     @PatchMapping(path = "/{id}")
     ResponseEntity<UserDto> updateUser(@PathVariable long id,
@@ -58,6 +70,12 @@ public class UserController {
         return ResponseEntity.ok(userMapper.userToUserDto(updatedUser));
     }
 
+    /**
+     * Поиск пользователя по id
+     * @param id id пользователя
+     * @return  UserDto
+     */
+
     @GetMapping(path = "/{id}")
     ResponseEntity<UserDto> getUserById(@PathVariable long id) {
         if (id <= 0) {
@@ -69,6 +87,12 @@ public class UserController {
                 .orElseThrow(() -> new NotFoundException("Не найден пользователь с id:" + id));
     }
 
+    /**
+     * Удаление пользователя по id
+     * @param id id пользователя
+     * @return ResponseEntity со строковым сообщением.
+     */
+
     @DeleteMapping(path = "/{id}")
     ResponseEntity<String> deleteUserById(@PathVariable long id) {
         if (id <= 0) {
@@ -78,6 +102,11 @@ public class UserController {
         log.debug("фильм id={} удален", id);
         return ResponseEntity.ok("Пользователь с id: " + id + " успешно удален");
     }
+
+    /**
+     * Поиск пользователя по id
+     * @return  List<UserDto>
+     */
 
     @GetMapping
     ResponseEntity<List<UserDto>> getUserList() {

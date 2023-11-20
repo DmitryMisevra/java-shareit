@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
 @Slf4j
 @RestController
 @RequestMapping("/items")
@@ -35,6 +36,12 @@ public class ItemController {
     private final ItemService itemService;
     private final ItemMapper itemMapper;
 
+    /**
+     * Добавление вещи
+     * @param ownerId        id собственника
+     * @param createdItemDto createdItemDto
+     * @return  ItemDto
+     */
 
     @PostMapping
     ResponseEntity<ItemDto> addItem (@RequestHeader("X-Sharer-User-Id") Long ownerId,
@@ -49,6 +56,13 @@ public class ItemController {
         log.debug("Добавлен новый пользователь с id={}", createdItem.getId());
         return ResponseEntity.ok(itemMapper.itemToItemDto(createdItem));
     }
+
+    /**
+     * Обновление данных о вещи
+     * @param ownerId        id собственника
+     * @param updatedItemDto updatedItemDto
+     * @return  ItemDto
+     */
 
     @PatchMapping(path = "/{id}")
     ResponseEntity<ItemDto> updateItem (@RequestHeader("X-Sharer-User-Id") Long ownerId, @PathVariable long id,
@@ -69,6 +83,12 @@ public class ItemController {
         return ResponseEntity.ok(itemMapper.itemToItemDto(updatedItem));
     }
 
+    /**
+     * Поиск вещи по id
+     * @param id id вещи
+     * @return  ItemDto
+     */
+
     @GetMapping(path = "/{id}")
     ResponseEntity<ItemDto> getItemById(@PathVariable long id) {
         if (id <= 0) {
@@ -80,6 +100,12 @@ public class ItemController {
                 .orElseThrow(() -> new NotFoundException("Не найдена вещь с id:" + id));
     }
 
+    /**
+     * Поиск вещи по id
+     * @param ownerId id собственника
+     * @return List<ItemDto>
+     */
+
     @GetMapping
     ResponseEntity<List<ItemDto>> getItemListByUserId(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
         if (ownerId == null) {
@@ -90,6 +116,12 @@ public class ItemController {
                 .map(itemMapper::itemToItemDto)
                 .collect(Collectors.toList()));
     }
+
+    /**
+     * Поиск вещи по имени/описанию
+     * @param text искомы текст
+     * @return List<ItemDto>
+     */
 
     @GetMapping("/search")
     ResponseEntity<List<ItemDto>> searchItemsByText(@RequestParam String text) {

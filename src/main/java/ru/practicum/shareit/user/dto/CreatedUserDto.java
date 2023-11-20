@@ -8,6 +8,11 @@ import ru.practicum.shareit.user.validator.UniqueEmail;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Email;
 
+
+/**
+ * CreatedUserDto передается при создании пользователя
+ */
+
 @Data
 @Builder
 public class CreatedUserDto {

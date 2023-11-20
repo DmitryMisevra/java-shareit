@@ -7,6 +7,10 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+/**
+ * Валидатор для проверки Email на уникальность
+ */
+
 @Component
 @RequiredArgsConstructor
 public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, String> {
