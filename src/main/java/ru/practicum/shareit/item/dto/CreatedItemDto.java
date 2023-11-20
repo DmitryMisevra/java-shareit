@@ -10,18 +10,13 @@ import javax.validation.constraints.Size;
 
 @Data
 @Builder
-public class ItemDto {
+public class CreatedItemDto {
 
-    @Positive(message = "Id вещи должен быть положительным числом")
-    private final Long id;
     @NotBlank(message = "Имя вещи не может быть пустым")
     private final String name;
     @NotBlank(message = "описание вещи не может быть пустым")
     @Size(max = 200, message = "Размер описания не может превышать 200 символов")
     private final String description;
-    @NotNull
-    @Positive(message = "Id пользователя должен быть положительным числом")
-    private final Long ownerId;
     @NotNull
     private final Boolean available;
 }
