@@ -1,8 +1,7 @@
 package ru.practicum.shareit.user.mapper;
 
-import org.mapstruct.InjectionStrategy;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import lombok.NonNull;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.user.dto.CreatedUserDto;
 import ru.practicum.shareit.user.dto.UpdatedUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -10,24 +9,31 @@ import ru.practicum.shareit.user.model.User;
 
 
 /**
- * UserMapper использует библиотеку MapStruct
+ * UserMapper для маппинга Dto
  */
 
-@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-public interface UserMapper {
+@Component
+public class UserMapper {
 
-    @Mapping(target = "id", ignore = true)
-    User createdUserDtoToUser(CreatedUserDto createdUserDto);
+    public User createdUserDtoToUser(@NonNull CreatedUserDto createdUserDto) {
+        return User.builder()
+                .name(createdUserDto.getName())
+                .email(createdUserDto.getEmail())
+                .build();
+    }
 
-    CreatedUserDto userToCreatedUserDto(User user);
+    public User updatedUserDtoToUser(@NonNull UpdatedUserDto updatedUserDto) {
+        return User.builder()
+                .name(updatedUserDto.getName())
+                .email(updatedUserDto.getEmail())
+                .build();
+    }
 
-    User updatedUserDtoToUser(UpdatedUserDto updatedUserDto);
-
-    UpdatedUserDto userToUpdatedUserDto(User user);
-
-    User userDtoToUser(UserDto userDto);
-
-    UserDto userToUserDto(User user);
-
-
+    public UserDto userToUserDto(@NonNull User user) {
+        return UserDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .build();
+    }
 }

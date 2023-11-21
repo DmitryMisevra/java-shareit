@@ -1,33 +1,41 @@
 package ru.practicum.shareit.item.mapper;
 
-import org.mapstruct.InjectionStrategy;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import lombok.NonNull;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.dto.CreatedItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.UpdatedItemDto;
 import ru.practicum.shareit.item.model.Item;
 
 /**
- * ItemMapper использует библиотеку MapStruct
+ * ItemMapper для маппинга Dto
  */
 
-@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-public interface ItemMapper {
+@Component
+public class ItemMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "ownerId", ignore = true)
-    Item createdItemDtoToItem(CreatedItemDto createdUItemDto);
+    public Item createdItemDtoToItem(@NonNull CreatedItemDto createdUItemDto) {
+        return Item.builder()
+                .name(createdUItemDto.getName())
+                .description(createdUItemDto.getDescription())
+                .available(createdUItemDto.getAvailable())
+                .build();
+    }
 
-    CreatedItemDto itemToCreatedItemDto(Item item);
+    public Item updatedItemDtoToItem(@NonNull UpdatedItemDto updatedUItemDto) {
+        return Item.builder()
+                .name(updatedUItemDto.getName())
+                .description(updatedUItemDto.getDescription())
+                .available(updatedUItemDto.getAvailable())
+                .build();
+    }
 
-    @Mapping(target = "ownerId", ignore = true)
-    Item updatedItemDtoToItem(UpdatedItemDto updatedUItemDto);
-
-    UpdatedItemDto itemToUpdatedItemDto(Item item);
-
-    Item itemDtoToItem(ItemDto itemDto);
-
-    ItemDto itemToItemDto(Item item);
-
+    public ItemDto itemToItemDto(@NonNull Item item) {
+        return ItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .build();
+    }
 }
