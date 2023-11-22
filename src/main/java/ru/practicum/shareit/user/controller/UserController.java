@@ -15,14 +15,10 @@ import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.dto.CreatedUserDto;
 import ru.practicum.shareit.user.dto.UpdatedUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.mapper.UserMapper;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -31,7 +27,6 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
-    private final UserMapper userMapper;
 
     /**
      * Добавление пользователя
@@ -42,11 +37,9 @@ public class UserController {
 
     @PostMapping
     ResponseEntity<UserDto> createUser(@Valid @RequestBody CreatedUserDto createdUserDto) {
-        User user = Optional.ofNullable(userMapper.createdUserDtoToUser(createdUserDto))
-                .orElseThrow(() -> new IllegalStateException("Ошибка конвертации UserDto->User. Метод вернул null."));
-        User createdUser = userService.createUser(user);
+        UserDto createdUser = userService.createUser(createdUserDto);
         log.debug("Добавлен новый пользователь с id={}", createdUser.getId());
-        return ResponseEntity.ok(userMapper.userToUserDto(createdUser));
+        return ResponseEntity.ok(createdUser);
     }
 
     /**
@@ -63,13 +56,10 @@ public class UserController {
         if (id <= 0) {
             throw new NotFoundException("Id пользователя должен быть положительным числом");
         }
-        User user = Optional.ofNullable(userMapper.updatedUserDtoToUser(updatedUserDto))
-                .orElseThrow(() -> new IllegalStateException("Ошибка конвертации UserDto->User. Метод вернул null."));
-        user.setId(id);
-        User updatedUser = userService.updateUser(user)
+        UserDto updatedUser = userService.updateUser(id, updatedUserDto)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         log.debug("Обновлен пользователь с id={}", updatedUser.getId());
-        return ResponseEntity.ok(userMapper.userToUserDto(updatedUser));
+        return ResponseEntity.ok(updatedUser);
     }
 
     /**
@@ -85,7 +75,6 @@ public class UserController {
             throw new NotFoundException("Id пользователя должен быть положительным числом");
         }
         return userService.getUserById(id)
-                .map(userMapper::userToUserDto)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new NotFoundException("Не найден пользователь с id:" + id));
     }
@@ -115,10 +104,6 @@ public class UserController {
 
     @GetMapping
     ResponseEntity<List<UserDto>> getUserList() {
-        List<UserDto> userDtoList = userService.getUserList()
-                .stream()
-                .map(userMapper::userToUserDto)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(userDtoList);
+        return ResponseEntity.ok(userService.getUserList());
     }
 }

@@ -1,7 +1,9 @@
 package ru.practicum.shareit.user.service;
 
 import org.springframework.lang.NonNull;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.dto.CreatedUserDto;
+import ru.practicum.shareit.user.dto.UpdatedUserDto;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,15 +11,15 @@ import java.util.Optional;
 public interface UserService {
 
     @NonNull
-    User createUser(@NonNull User user);
+    UserDto createUser(@NonNull CreatedUserDto createdUserDto);
 
-    Optional<User> updateUser(@NonNull User user);
+    Optional<UserDto> updateUser(@NonNull long id, UpdatedUserDto updatedUserDto);
 
-    Optional<User> getUserById(long id);
+    Optional<UserDto> getUserById(long id);
 
     @NonNull
     void removeUserById(long id);
 
     @NonNull
-    List<User> getUserList();
+    List<UserDto> getUserList();
 }
