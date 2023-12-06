@@ -16,7 +16,7 @@ public class Booking {
     private Long id;
     private LocalDateTime start;
     private LocalDateTime end;
-    private String item;
+    private Long itemId;
     private String booker;
     private Status status;
 
@@ -25,6 +25,7 @@ public class Booking {
                 .id(this.id)
                 .start(this.start)
                 .end(this.end)
+                .itemId(this.itemId)
                 .booker(this.booker)
                 .status(this.status)
                 .build();

@@ -13,7 +13,7 @@ public interface UserService {
     @NonNull
     UserDto createUser(@NonNull CreatedUserDto createdUserDto);
 
-    Optional<UserDto> updateUser(@NonNull long id, UpdatedUserDto updatedUserDto);
+    UserDto updateUser(@NonNull long id, UpdatedUserDto updatedUserDto);
 
     Optional<UserDto> getUserById(long id);
 

@@ -56,8 +56,7 @@ public class UserController {
         if (id <= 0) {
             throw new NotFoundException("Id пользователя должен быть положительным числом");
         }
-        UserDto updatedUser = userService.updateUser(id, updatedUserDto)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        UserDto updatedUser = userService.updateUser(id, updatedUserDto);
         log.debug("Обновлен пользователь с id={}", updatedUser.getId());
         return ResponseEntity.ok(updatedUser);
     }

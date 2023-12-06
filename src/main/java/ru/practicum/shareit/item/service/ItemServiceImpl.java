@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exceptions.ForbiddenUserException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.CreatedItemDto;
@@ -20,13 +21,14 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
     private final UserService userService;
     private final ItemMapper itemMapper;
 
-
+    @Transactional
     @Override
     @NonNull
     public ItemDto createItem(@NonNull long ownerId, CreatedItemDto createdItemDto) {
@@ -37,7 +39,7 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("Пользователь с таким id не найден"));
         return itemMapper.itemToItemDto(itemRepository.createItem(item));
     }
-
+    @Transactional
     @Override
     public Optional<ItemDto> updateItem(@NonNull long ownerId, long itemId, UpdatedItemDto updatedItemDto) {
         Item item = Optional.ofNullable(itemMapper.updatedItemDtoToItem(updatedItemDto))
