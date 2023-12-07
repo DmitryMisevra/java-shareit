@@ -37,24 +37,7 @@ public class Item {
     private Boolean available;
 
     /**
-     * Cоздание копии текущего Item
-     *
-     * @return item
-     */
-
-    public Item copyOf() {
-        return Item.builder()
-                .id(this.id)
-                .name(this.name)
-                .description(this.description)
-                .ownerId(this.ownerId)
-                .available(this.available)
-                .build();
-    }
-
-    /**
      * Обновление Item всех непустых полей
-     *
      */
 
     public void updateWith(Item other) {

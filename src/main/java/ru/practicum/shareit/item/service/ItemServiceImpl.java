@@ -15,7 +15,6 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -32,45 +31,49 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @NonNull
     public ItemDto createItem(@NonNull long ownerId, CreatedItemDto createdItemDto) {
+        userService.getUserById(ownerId);
         Item item = Optional.ofNullable(itemMapper.createdItemDtoToItem(createdItemDto))
                 .orElseThrow(() -> new IllegalStateException("Ошибка конвертации itemDto->Item. Метод вернул null."));
         item.setOwnerId(ownerId);
-        userService.getUserById(item.getOwnerId())
-                .orElseThrow(() -> new NotFoundException("Пользователь с таким id не найден"));
-        return itemMapper.itemToItemDto(itemRepository.createItem(item));
+        return Optional.ofNullable(itemMapper.itemToItemDto(itemRepository.save(item))).orElseThrow(() ->
+                new IllegalStateException("Ошибка конвертации Item->ItemDto. Метод вернул null."));
     }
+
     @Transactional
     @Override
-    public Optional<ItemDto> updateItem(@NonNull long ownerId, long itemId, UpdatedItemDto updatedItemDto) {
+    public ItemDto updateItem(@NonNull long ownerId, long itemId, UpdatedItemDto updatedItemDto) {
+        userService.getUserById(ownerId);
+        Item updateditem = itemRepository.findById(itemId).orElseThrow(() ->
+                new NotFoundException("Вещь с таким id не найдена"));
+        if (updateditem.getOwnerId() != ownerId) {
+            throw new ForbiddenUserException("Данные о вещи может обновлять только владелец");
+        }
         Item item = Optional.ofNullable(itemMapper.updatedItemDtoToItem(updatedItemDto))
                 .orElseThrow(() -> new IllegalStateException("Ошибка конвертации itemDto->Item. Метод вернул null."));
-        item.setId(itemId);
-        item.setOwnerId(ownerId);
-        userService.getUserById(item.getOwnerId())
-                .orElseThrow(() -> new NotFoundException("Пользователь с таким id не найден"));
-        return getItemById(item.getId()).flatMap(savedItem -> {
-            if (!Objects.equals(savedItem.getOwnerId(), item.getOwnerId())) {
-                throw new ForbiddenUserException("Данные о вещи может обновлять только владелец");
-            }
-            return itemRepository.updateItem(item).map(itemMapper::itemToItemDto);
-        });
+        updateditem.updateWith(item);
+        return Optional.ofNullable(itemMapper.itemToItemDto(itemRepository.save(updateditem))).orElseThrow(() ->
+                new IllegalStateException("Ошибка конвертации Item->ItemDto. Метод вернул null."));
     }
 
     @Override
-    public Optional<ItemDto> getItemById(long id) {
-        return itemRepository.getItemById(id).map(itemMapper::itemToItemDto);
+    public ItemDto getItemById(long id) {
+        Item foundedItem = itemRepository.findById(id).orElseThrow(() ->
+                new NotFoundException("Пользователь не найден"));
+        return Optional.ofNullable(itemMapper.itemToItemDto(foundedItem)).orElseThrow(() ->
+                new IllegalStateException("Ошибка конвертации Item->ItemDto. Метод вернул null."));
     }
 
     @Override
     public List<ItemDto> getItemListByUserId(long userId) {
-        return itemRepository.getItemListByUserId(userId).stream()
+        return itemRepository.findItemsByOwnerId(userId).stream()
                 .map(itemMapper::itemToItemDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<ItemDto> searchItemsByText(@NonNull String text) {
-        return itemRepository.searchItemsByText(text.toLowerCase()).stream()
+        List<Item> foundedItems = itemRepository.searchItemsByText(text);
+        return itemRepository.searchItemsByText(text).stream()
                 .map(itemMapper::itemToItemDto)
                 .collect(Collectors.toList());
     }

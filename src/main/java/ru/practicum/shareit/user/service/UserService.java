@@ -6,7 +6,6 @@ import ru.practicum.shareit.user.dto.UpdatedUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface UserService {
 
@@ -15,7 +14,7 @@ public interface UserService {
 
     UserDto updateUser(@NonNull long id, UpdatedUserDto updatedUserDto);
 
-    Optional<UserDto> getUserById(long id);
+    UserDto getUserById(long id);
 
     @NonNull
     void removeUserById(long id);

@@ -33,22 +33,7 @@ public class User {
     private String email;
 
     /**
-     * Cоздание копии текущего User
-     *
-     * @return User
-     */
-
-    public User copyOf() {
-        return User.builder()
-                .id(this.id)
-                .name(this.name)
-                .email(this.email)
-                .build();
-    }
-
-    /**
      * Обновление User всех непустых полей
-     *
      */
 
     public void updateWith(User other) {
