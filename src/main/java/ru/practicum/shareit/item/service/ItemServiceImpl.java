@@ -1,9 +1,14 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.dto.BookingInfoDto;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.ForbiddenUserException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.CreatedItemDto;
@@ -26,6 +31,8 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserService userService;
     private final ItemMapper itemMapper;
+    private final BookingRepository bookingRepository;
+
 
     @Transactional
     @Override
@@ -44,7 +51,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto updateItem(@NonNull long ownerId, long itemId, UpdatedItemDto updatedItemDto) {
         userService.getUserById(ownerId);
         Item updateditem = itemRepository.findById(itemId).orElseThrow(() ->
-                new NotFoundException("Вещь с таким id не найдена"));
+                new NotFoundException("Вещь с id: " + itemId + " не найдена"));
         if (updateditem.getOwnerId() != ownerId) {
             throw new ForbiddenUserException("Данные о вещи может обновлять только владелец");
         }
@@ -56,25 +63,43 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getItemById(long id) {
-        Item foundedItem = itemRepository.findById(id).orElseThrow(() ->
-                new NotFoundException("Пользователь не найден"));
-        return Optional.ofNullable(itemMapper.itemToItemDto(foundedItem)).orElseThrow(() ->
+    public ItemDto getItemById(long userId, long itemId) {
+        Item foundItem = itemRepository.findById(itemId).orElseThrow(() ->
+                new NotFoundException("Вещь с id: " + itemId + " не найдена"));
+
+        ItemDto foundItemDto = Optional.ofNullable(itemMapper.itemToItemDto(foundItem)).orElseThrow(() ->
                 new IllegalStateException("Ошибка конвертации Item->ItemDto. Метод вернул null."));
+        if (foundItemDto.getOwnerId() == userId) {
+            addNextAndLastBookings(foundItemDto);
+        }
+        return foundItemDto;
     }
 
     @Override
     public List<ItemDto> getItemListByUserId(long userId) {
-        return itemRepository.findItemsByOwnerId(userId).stream()
+        return itemRepository.findItemsByOwnerIdOrderByIdAsc(userId).stream()
                 .map(itemMapper::itemToItemDto)
+                .map(this::addNextAndLastBookings)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<ItemDto> searchItemsByText(@NonNull String text) {
-        List<Item> foundedItems = itemRepository.searchItemsByText(text);
         return itemRepository.searchItemsByText(text).stream()
                 .map(itemMapper::itemToItemDto)
                 .collect(Collectors.toList());
+    }
+
+    private ItemDto addNextAndLastBookings(ItemDto itemDto) {
+        Pageable limit = PageRequest.of(0, 1);
+        Page<BookingInfoDto> lastBookingPage = bookingRepository.findLastBookingByItemId(itemDto.getId(), limit);
+        Page<BookingInfoDto> nextBookingPage = bookingRepository.findNextBookingByItemId(itemDto.getId(), limit);
+
+        Optional<BookingInfoDto> lastBookingOpt = lastBookingPage.get().findFirst();
+        lastBookingOpt.ifPresent(itemDto::setLastBooking);
+
+        Optional<BookingInfoDto> nextBookingOpt = nextBookingPage.get().findFirst();
+        nextBookingOpt.ifPresent(itemDto::setNextBooking);
+        return itemDto;
     }
 }

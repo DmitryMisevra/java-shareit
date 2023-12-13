@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto updateUser(@NonNull long id, UpdatedUserDto updatedUserDto) {
         User updatedUser = userRepository.findById(id).orElseThrow(() ->
-                new NotFoundException("Пользователь не найден"));
+                new NotFoundException("Пользователь с id: " + id + " не найден"));
         User user = Optional.ofNullable(userMapper.updatedUserDtoToUser(updatedUserDto))
                 .orElseThrow(() -> new IllegalStateException("Ошибка конвертации UserDto->User. Метод вернул null."));
         updatedUser.updateWith(user);
@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
     @NonNull
     public UserDto getUserById(long id) {
         User foundedUser = userRepository.findById(id).orElseThrow(() ->
-                new NotFoundException("Пользователь не найден"));
+                new NotFoundException("Пользователь с id: " + id + " не найден"));
         return Optional.ofNullable(userMapper.userToUserDto(foundedUser)).orElseThrow(() ->
                 new IllegalStateException("Ошибка конвертации User->UserDto. Метод вернул null."));
     }
