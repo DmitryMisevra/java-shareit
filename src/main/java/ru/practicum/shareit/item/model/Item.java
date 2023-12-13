@@ -35,6 +35,8 @@ public class Item {
     private Long ownerId;
     @Column(name = "item_available", nullable = false)
     private Boolean available;
+    @Column(name = "request_id")
+    private Long requestId;
 
     /**
      * Обновление Item всех непустых полей

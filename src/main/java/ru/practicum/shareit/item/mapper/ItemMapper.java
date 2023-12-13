@@ -39,4 +39,14 @@ public class ItemMapper {
                 .available(item.getAvailable())
                 .build();
     }
+
+    public Item itemDtoToItem(@NonNull ItemDto itemDto) {
+        return Item.builder()
+                .id(itemDto.getId())
+                .name(itemDto.getName())
+                .description(itemDto.getDescription())
+                .ownerId(itemDto.getOwnerId())
+                .available(itemDto.getAvailable())
+                .build();
+    }
 }

@@ -75,16 +75,20 @@ public class ItemController {
     /**
      * Поиск вещи по id
      *
-     * @param id id вещи
+     * @param userId id пользователя, делающего запрос
+     * @param itemId id вещи
      * @return ItemDto
      */
 
-    @GetMapping(path = "/{id}")
-    ResponseEntity<ItemDto> getItemById(@PathVariable long id) {
-        if (id <= 0) {
+    @GetMapping(path = "/{itemId}")
+    ResponseEntity<ItemDto> getItemById(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable long itemId) {
+        if (userId == null) {
+            throw new NotFoundException("Не указан id пользователя, запрашивающего информацию о вещи");
+        }
+        if (itemId <= 0) {
             throw new NotFoundException("Id вещи должен быть положительным числом");
         }
-        return ResponseEntity.ok(itemService.getItemById(id));
+        return ResponseEntity.ok(itemService.getItemById(userId, itemId));
     }
 
     /**
