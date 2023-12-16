@@ -107,18 +107,19 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(itemId).orElseThrow(() ->
                 new NotFoundException("Вещь с id: " + itemId + " не найдена"));
         if (!bookingRepository.checkIfCompletedBookingExistsForItemByUserId(userId, itemId)) {
-            throw new IllegalStateException
-                    ("У пользователя с id: " + userId + " нет завершенных букингов с id " + itemId);
+            throw new IllegalStateException("У пользователя с id: " + userId + " нет завершенных букингов с id "
+                    + itemId);
         }
 
         Comment comment = Optional.ofNullable(commentMapper.createdCoomentDtoToComment(createdCommentDto))
-                .orElseThrow(() -> new IllegalStateException
-                        ("Ошибка конвертации commentDto->Comment. Метод вернул null"));
+                .orElseThrow(() -> new IllegalStateException("Ошибка конвертации commentDto->Comment." +
+                        " Метод вернул null"));
         comment.setItem(item);
         comment.setAuthor(author);
         Comment savedComment = commentRepository.save(comment);
-        Comment uploadedComment = commentRepository.findById(savedComment.getId()).
-                orElseThrow(() -> new IllegalStateException("Ошибка при загрузке Comment. Метод вернул null."));
+        Comment uploadedComment = commentRepository.findById(savedComment.getId())
+                        .orElseThrow(() -> new IllegalStateException("Ошибка при загрузке Comment." +
+                                " Метод вернул null."));
         return Optional.ofNullable(commentMapper.commentToCommentDto(uploadedComment)).orElseThrow(() ->
                 new IllegalStateException("Ошибка конвертации CommentDto->Comment. Метод вернул null."));
     }
