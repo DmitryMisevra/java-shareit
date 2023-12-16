@@ -127,15 +127,15 @@ public class ItemController {
     /**
      * Добавление комментария
      *
-     * @param userId        id комментатора
-     * @param itemId        id вещи
+     * @param userId            id комментатора
+     * @param itemId            id вещи
      * @param createdCommentDto createdCommentDto
      * @return CommentDto
      */
 
     @PostMapping(path = "/{itemId}/comment")
-    ResponseEntity<CommentDto> addComment(@RequestHeader("X-Sharer-User-Id") Long userId,@PathVariable Long itemId,
-                                       @Valid @RequestBody CreatedCommentDto createdCommentDto) {
+    ResponseEntity<CommentDto> addComment(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
+                                          @Valid @RequestBody CreatedCommentDto createdCommentDto) {
         if (userId == null) {
             throw new NotFoundException("Не указан id комментатора");
         }

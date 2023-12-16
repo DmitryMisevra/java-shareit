@@ -31,7 +31,7 @@ public class BookingController {
     /**
      * Добавление букинга
      *
-     * @param creatorId       id создателя
+     * @param creatorId         id создателя
      * @param createdBookingDto createdBookingDto
      * @return BookingDto
      */
@@ -50,8 +50,8 @@ public class BookingController {
     /**
      * Обновление статуса букинга
      *
-     * @param userId       id пользователя, который хочет изменить статус
-     * @param bookingId    id букинга, статус которого нужно изменить
+     * @param userId    id пользователя, который хочет изменить статус
+     * @param bookingId id букинга, статус которого нужно изменить
      * @return BookingDto
      */
 
@@ -72,8 +72,8 @@ public class BookingController {
     /**
      * Поиск букинга по id
      *
-     * @param userId       id пользователя запрашивающего букинг
-     * @param bookingId    id букинга
+     * @param userId    id пользователя запрашивающего букинг
+     * @param bookingId id букинга
      * @return BookingDto
      */
 
@@ -92,8 +92,8 @@ public class BookingController {
     /**
      * Список букингов, созданных пользователем
      *
-     * @param userId       id пользователя запрашивающего букинг
-     * @param state        статус, по которому будут отфильтрованы букинги
+     * @param userId id пользователя запрашивающего букинг
+     * @param state  статус, по которому будут отфильтрованы букинги
      * @return List<BookingDto>
      */
 
@@ -110,8 +110,8 @@ public class BookingController {
     /**
      * Список всех букингов для вещей пользователя
      *
-     * @param userId       id пользователя запрашивающего букинг
-     * @param state        статус, по которому будут отфильтрованы букинги
+     * @param userId id пользователя запрашивающего букинг
+     * @param state  статус, по которому будут отфильтрованы букинги
      * @return List<BookingDto>
      */
 

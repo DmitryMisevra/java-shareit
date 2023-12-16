@@ -42,14 +42,4 @@ public class ItemMapper {
                 .comments(item.getComments())
                 .build();
     }
-
-    public Item itemDtoToItem(@NonNull ItemDto itemDto) {
-        return Item.builder()
-                .id(itemDto.getId())
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .ownerId(itemDto.getOwnerId())
-                .available(itemDto.getAvailable())
-                .build();
-    }
 }
