@@ -1,5 +1,8 @@
 package ru.practicum.shareit.item.dto;
 
+/**
+ * CommentDto передается в http-ответе для всех метода addComment
+ */
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,5 +28,4 @@ public class CommentDto {
     private final String authorName;
     @NotNull
     private LocalDateTime created;
-
 }

@@ -15,16 +15,10 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.ForbiddenUserException;
 import ru.practicum.shareit.exceptions.ItemNotAvailableException;
 import ru.practicum.shareit.exceptions.NotFoundException;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.item.service.ItemService;
-import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-import ru.practicum.shareit.user.service.UserService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -43,16 +37,16 @@ public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
     private final BookingMapper bookingMapper;
-    private final UserService userService;
-    private final UserMapper userMapper;
-    private final ItemService itemService;
-    private final ItemMapper itemMapper;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     @Override
     public BookingDto createBooking(long creatorId, CreatedBookingDto createdBookingDto) {
-        User booker = findUserById(creatorId);
-        Item item = findItemById(creatorId, createdBookingDto.getItemId());
+        User booker = userRepository.findById(creatorId).orElseThrow(() ->
+                new NotFoundException("Вещь с id: " + creatorId + " не найдена"));
+        Item item = itemRepository.findById(createdBookingDto.getItemId()).orElseThrow(() ->
+                new NotFoundException("Вещь с id: " + createdBookingDto.getItemId() + " не найдена"));
 
         if (item.getOwnerId() == creatorId) {
             throw new ForbiddenUserException("Вы не можете забронировать вашу вещь");
@@ -82,7 +76,8 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     @Override
     public BookingDto updateBookingStatus(long userId, long bookingId, boolean status) {
-        findUserById(userId);
+        userRepository.findById(userId).orElseThrow(() ->
+                new NotFoundException("Вещь с id: " + userId + " не найдена"));
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Бронь с id: " + bookingId + " не найдена"));
         Item item = booking.getItem();
@@ -105,7 +100,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto findBookingById(long userId, long bookingId) {
-        findUserById(userId);
+        userRepository.findById(userId).orElseThrow(() ->
+                new NotFoundException("Вещь с id: " + userId + " не найдена"));
         Booking loadedBooking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Бронь с id: " + bookingId + " не найдена"));
         User booker = loadedBooking.getBooker();
@@ -122,8 +118,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> getBookingListCreatedByUserId(long userId, String state) {
-        findUserById(userId);
-
+        userRepository.findById(userId).orElseThrow(() ->
+                new NotFoundException("Вещь с id: " + userId + " не найдена"));
         QBooking booking = QBooking.booking;
         JPAQuery<?> query = new JPAQuery<Void>(entityManager);
 
@@ -166,7 +162,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> getBookingListForAllOwnerItems(long userId, String state) {
-        findUserById(userId);
+        userRepository.findById(userId).orElseThrow(() ->
+                new NotFoundException("Вещь с id: " + userId + " не найдена"));
         checkIfUserHasItems(userId);
 
         QBooking booking = QBooking.booking;
@@ -206,20 +203,8 @@ public class BookingServiceImpl implements BookingService {
                 .collect(Collectors.toList());
     }
 
-    private User findUserById(long id) {
-        UserDto userDto = userService.getUserById(id);
-        return Optional.ofNullable(userMapper.userDtoToUser(userDto)).orElseThrow(() ->
-                new IllegalStateException("Ошибка конвертации UserDto->User. Метод вернул null."));
-    }
-
-    private Item findItemById(long userId, long itemId) {
-        ItemDto itemDto = itemService.getItemById(userId, itemId);
-        return Optional.ofNullable(itemMapper.itemDtoToItem(itemDto)).orElseThrow(() ->
-                new IllegalStateException("Ошибка конвертации ItemDto->Item. Метод вернул null."));
-    }
-
     private void checkIfUserHasItems(long userId) {
-        List<ItemDto> itemList = itemService.getItemListByUserId(userId);
+        List<Item> itemList = itemRepository.findItemsByOwnerIdOrderByIdAsc(userId);
         if (itemList.isEmpty()) {
             throw new NotFoundException("У пользователя с id: " + userId + "нет вещей во владении");
         }

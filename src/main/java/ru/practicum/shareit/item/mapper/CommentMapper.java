@@ -6,6 +6,9 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CreatedCommentDto;
 import ru.practicum.shareit.item.model.Comment;
 
+/**
+ * CommentMapper для маппинга Dto
+ */
 @Component
 public class CommentMapper {
 
@@ -23,5 +26,4 @@ public class CommentMapper {
                 .created(comment.getCreated())
                 .build();
     }
-
 }
