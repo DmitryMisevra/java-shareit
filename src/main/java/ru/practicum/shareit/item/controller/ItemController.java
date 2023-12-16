@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CreatedCommentDto;
 import ru.practicum.shareit.item.dto.CreatedItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.UpdatedItemDto;
@@ -120,5 +122,29 @@ public class ItemController {
         }
         log.debug("Получены искомый список {}", itemService.searchItemsByText(text));
         return ResponseEntity.ok(itemService.searchItemsByText(text));
+    }
+
+    /**
+     * Добавление комментария
+     *
+     * @param userId        id комментатора
+     * @param itemId        id вещи
+     * @param createdCommentDto createdCommentDto
+     * @return CommentDto
+     */
+
+    @PostMapping(path = "/{itemId}/comment")
+    ResponseEntity<CommentDto> addComment(@RequestHeader("X-Sharer-User-Id") Long userId,@PathVariable Long itemId,
+                                       @Valid @RequestBody CreatedCommentDto createdCommentDto) {
+        if (userId == null) {
+            throw new NotFoundException("Не указан id комментатора");
+        }
+        if (itemId == null) {
+            throw new NotFoundException("Не указан id вещи, к которой добавляется отзыв");
+        }
+        CommentDto commentDto = itemService.addComment(userId, itemId, createdCommentDto);
+        log.debug("Добавлен новый комментарий с id={} от пользователя {}", commentDto.getId(),
+                commentDto.getAuthorName());
+        return ResponseEntity.ok(commentDto);
     }
 }

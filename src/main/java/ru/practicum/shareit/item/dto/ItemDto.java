@@ -9,6 +9,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 /**
  * itemDto передается в http-ответе для всех методов ItemController
@@ -33,4 +34,5 @@ public class ItemDto {
     private final Boolean available;
     private BookingInfoDto lastBooking;
     private BookingInfoDto nextBooking;
+    private List<CommentDto> comments;
 }

@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.booking.dto.BookingInfoDto;
+import ru.practicum.shareit.item.dto.CommentDto;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +13,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+import java.util.List;
 
 /**
  * Базовая сущность Item
@@ -37,6 +41,12 @@ public class Item {
     private Boolean available;
     @Column(name = "request_id")
     private Long requestId;
+    @Transient
+    private BookingInfoDto lastBooking;
+    @Transient
+    private BookingInfoDto nextBooking;
+    @Transient
+    private List<CommentDto> comments;
 
     /**
      * Обновление Item всех непустых полей
