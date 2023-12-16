@@ -7,7 +7,7 @@ import javax.validation.ConstraintValidatorContext;
 import java.time.LocalDateTime;
 
 /**
- * BookingDatesValidator деалет проверку на валидность startDate и endDate для booking
+ * BookingDatesValidator делает проверку на валидность startDate и endDate для booking
  */
 
 public class BookingDatesValidator implements ConstraintValidator<ValidBookingDates, CreatedBookingDto> {
