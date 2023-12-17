@@ -2,7 +2,6 @@ package ru.practicum.shareit.user.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import ru.practicum.shareit.user.validator.UniqueEmail;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
@@ -24,6 +23,5 @@ public class UserDto {
 
     @NotNull(message = "не указан Email")
     @Email(message = "неправильный формат Email")
-    @UniqueEmail
     private final String email;
 }

@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CreatedCommentDto;
 import ru.practicum.shareit.item.dto.CreatedItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.UpdatedItemDto;
@@ -67,8 +69,7 @@ public class ItemController {
         if (itemId <= 0) {
             throw new NotFoundException("Id вещи должен быть положительным числом");
         }
-        ItemDto itemDto = itemService.updateItem(ownerId, itemId, updatedItemDto)
-                .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
+        ItemDto itemDto = itemService.updateItem(ownerId, itemId, updatedItemDto);
         log.debug("Обновлена вещь с id={}", itemDto.getId());
         return ResponseEntity.ok(itemDto);
     }
@@ -76,18 +77,20 @@ public class ItemController {
     /**
      * Поиск вещи по id
      *
-     * @param id id вещи
+     * @param userId id пользователя, делающего запрос
+     * @param itemId id вещи
      * @return ItemDto
      */
 
-    @GetMapping(path = "/{id}")
-    ResponseEntity<ItemDto> getItemById(@PathVariable long id) {
-        if (id <= 0) {
+    @GetMapping(path = "/{itemId}")
+    ResponseEntity<ItemDto> getItemById(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable long itemId) {
+        if (userId == null) {
+            throw new NotFoundException("Не указан id пользователя, запрашивающего информацию о вещи");
+        }
+        if (itemId <= 0) {
             throw new NotFoundException("Id вещи должен быть положительным числом");
         }
-        return itemService.getItemById(id)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new NotFoundException("Не найдена вещь с id:" + id));
+        return ResponseEntity.ok(itemService.getItemById(userId, itemId));
     }
 
     /**
@@ -117,6 +120,31 @@ public class ItemController {
         if (text.isEmpty()) {
             return ResponseEntity.ok(Collections.emptyList());
         }
+        log.debug("Получены искомый список {}", itemService.searchItemsByText(text));
         return ResponseEntity.ok(itemService.searchItemsByText(text));
+    }
+
+    /**
+     * Добавление комментария
+     *
+     * @param userId            id комментатора
+     * @param itemId            id вещи
+     * @param createdCommentDto createdCommentDto
+     * @return CommentDto
+     */
+
+    @PostMapping(path = "/{itemId}/comment")
+    ResponseEntity<CommentDto> addComment(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
+                                          @Valid @RequestBody CreatedCommentDto createdCommentDto) {
+        if (userId == null) {
+            throw new NotFoundException("Не указан id комментатора");
+        }
+        if (itemId == null) {
+            throw new NotFoundException("Не указан id вещи, к которой добавляется отзыв");
+        }
+        CommentDto commentDto = itemService.addComment(userId, itemId, createdCommentDto);
+        log.debug("Добавлен новый комментарий с id={} от пользователя {}", commentDto.getId(),
+                commentDto.getAuthorName());
+        return ResponseEntity.ok(commentDto);
     }
 }
