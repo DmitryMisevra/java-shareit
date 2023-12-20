@@ -27,6 +27,14 @@ public class ItemRequestController {
 
     private final ItemRequestService itemRequestService;
 
+    /**
+     * Добавление запроса на вещь
+     *
+     * @param userId                id пользователя
+     * @param createdItemRequestDto createdItemRequestDto
+     * @return ItemRequestDto
+     */
+
     @PostMapping
     ResponseEntity<ItemRequestDto> addItemRequest(
             @RequestHeader("X-Sharer-User-Id") @NotNull(message = "Не указан id пользователя") Long userId,
@@ -37,6 +45,13 @@ public class ItemRequestController {
         return ResponseEntity.ok(itemRequestDto);
     }
 
+    /**
+     * Получить список всех запросов определенного пользователя
+     *
+     * @param ownerId id пользователя, оставившего запрос
+     * @return List<ItemRequestDto>
+     */
+
     @GetMapping
     ResponseEntity<List<ItemRequestDto>> getItemRequestListByUserId(
             @RequestHeader("X-Sharer-User-Id") @NotNull(message = "Не указан id пользователя") Long ownerId
@@ -44,6 +59,15 @@ public class ItemRequestController {
         List<ItemRequestDto> itemRequestList = itemRequestService.getItemRequestListByUserId(ownerId);
         return ResponseEntity.ok(itemRequestList);
     }
+
+    /**
+     * Получить список всех запросов, на которые может ответить пользователь
+     *
+     * @param userId id пользователя
+     * @param from   индекс, с которого начинается список
+     * @param size   размер списка
+     * @return List<ItemRequestDto>
+     */
 
     @GetMapping("/all")
     ResponseEntity<List<ItemRequestDto>> getAllItemRequestList(
@@ -61,6 +85,14 @@ public class ItemRequestController {
         log.debug("Передан список с from={}, size={}: {}", from, size, itemRequestList);
         return ResponseEntity.ok(itemRequestList);
     }
+
+    /**
+     * Получение информации о запросе по его id
+     *
+     * @param userId    id пользователя
+     * @param requestId id запроса
+     * @return ItemRequestDto
+     */
 
     @GetMapping("/{requestId}")
     ResponseEntity<ItemRequestDto> getRequestByItemRequestId(

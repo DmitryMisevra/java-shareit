@@ -8,6 +8,10 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+/**
+ * CreatedItemRequestDto передается при создании запроса
+ */
+
 @Data
 @Builder
 @AllArgsConstructor

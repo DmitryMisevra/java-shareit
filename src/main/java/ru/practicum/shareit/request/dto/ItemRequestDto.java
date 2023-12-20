@@ -13,6 +13,10 @@ import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * ItemRequestDto передается в http-ответе для всех методов ItemRequestController
+ */
+
 @Data
 @Builder
 @RequiredArgsConstructor

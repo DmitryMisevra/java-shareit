@@ -6,6 +6,10 @@ import ru.practicum.shareit.request.dto.CreatedItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 
+/**
+ * ItemRequestMapper для маппинга Dto
+ */
+
 @Component
 public class ItemRequestMapper {
     public ItemRequest createdItemRequestDtoToItemRequest(@NonNull CreatedItemRequestDto createdItemRequestDto) {
