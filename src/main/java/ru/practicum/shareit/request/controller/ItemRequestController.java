@@ -76,10 +76,10 @@ public class ItemRequestController {
             @RequestParam(required = false) Long size
     ) {
         if (from != null && from < 0) {
-            throw new IllegalStateException("Индекс запроса не может меньше нуля");
+            throw new IllegalStateException("Индекс запроса не может быть меньше нуля");
         }
-        if (size != null && size <= 0) {
-            throw new IllegalStateException("Размер списка не может быть меньше или равен нулю");
+        if (size != null && size < 1) {
+            throw new IllegalStateException("Размер списка не может быть меньше 1");
         }
         List<ItemRequestDto> itemRequestList = itemRequestService.getAllItemRequestList(userId, from, size);
         log.debug("Передан список с from={}, size={}: {}", from, size, itemRequestList);

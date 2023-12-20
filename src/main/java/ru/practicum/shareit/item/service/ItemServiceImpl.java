@@ -85,18 +85,33 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getItemListByUserId(long userId) {
-        return itemRepository.findItemsByOwnerIdOrderByIdAsc(userId).stream()
-                .map(this::addNextAndLastBookings)
-                .map(itemMapper::itemToItemDto)
-                .collect(Collectors.toList());
+    public List<ItemDto> getItemListByUserId(long userId, Long from, Long size) {
+        if (from != null && size != null) {
+            Pageable pageable = PageRequest.of(from.intValue(), size.intValue());
+            return itemRepository.findItemsByOwnerIdOrderByIdAsc(userId, pageable).stream()
+                    .map(this::addNextAndLastBookings)
+                    .map(itemMapper::itemToItemDto)
+                    .collect(Collectors.toList());
+        } else {
+            return itemRepository.findItemsByOwnerIdOrderByIdAsc(userId).stream()
+                    .map(this::addNextAndLastBookings)
+                    .map(itemMapper::itemToItemDto)
+                    .collect(Collectors.toList());
+        }
     }
 
     @Override
-    public List<ItemDto> searchItemsByText(@NonNull String text) {
-        return itemRepository.searchItemsByText(text).stream()
-                .map(itemMapper::itemToItemDto)
-                .collect(Collectors.toList());
+    public List<ItemDto> searchItemsByText(@NonNull String text, Long from, Long size) {
+        if (from != null && size != null) {
+            Pageable pageable = PageRequest.of(from.intValue(), size.intValue());
+            return itemRepository.searchItemsByText(text, pageable).stream()
+                    .map(itemMapper::itemToItemDto)
+                    .collect(Collectors.toList());
+        } else {
+            return itemRepository.searchItemsByText(text).stream()
+                    .map(itemMapper::itemToItemDto)
+                    .collect(Collectors.toList());
+        }
     }
 
     @Transactional

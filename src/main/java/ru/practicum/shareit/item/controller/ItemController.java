@@ -101,11 +101,21 @@ public class ItemController {
      */
 
     @GetMapping
-    ResponseEntity<List<ItemDto>> getItemListByUserId(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
+    ResponseEntity<List<ItemDto>> getItemListByUserId(@RequestHeader("X-Sharer-User-Id") Long ownerId,
+                                                      @RequestParam(required = false) Long from,
+                                                      @RequestParam(required = false) Long size) {
         if (ownerId == null) {
             throw new NotFoundException("Не указан id собственника вещи");
         }
-        return ResponseEntity.ok(itemService.getItemListByUserId(ownerId));
+        if (from != null && from < 0) {
+            throw new IllegalStateException("Индекс запроса не может быть меньше нуля");
+        }
+        if (size != null && size < 1) {
+            throw new IllegalStateException("Размер списка не может быть меньше 1");
+        }
+        List<ItemDto> itemDtoList = itemService.getItemListByUserId(ownerId, from, size);
+        log.debug("Получен искомый список {}", itemDtoList);
+        return ResponseEntity.ok(itemDtoList);
     }
 
     /**
@@ -116,12 +126,21 @@ public class ItemController {
      */
 
     @GetMapping("/search")
-    ResponseEntity<List<ItemDto>> searchItemsByText(@RequestParam String text) {
+    ResponseEntity<List<ItemDto>> searchItemsByText(@RequestParam String text,
+                                                    @RequestParam(required = false) Long from,
+                                                    @RequestParam(required = false) Long size) {
         if (text.isEmpty()) {
             return ResponseEntity.ok(Collections.emptyList());
         }
-        log.debug("Получены искомый список {}", itemService.searchItemsByText(text));
-        return ResponseEntity.ok(itemService.searchItemsByText(text));
+        if (from != null && from < 0) {
+            throw new IllegalStateException("Индекс запроса не может быть меньше нуля");
+        }
+        if (size != null && size < 1) {
+            throw new IllegalStateException("Размер списка не может быть меньше 1");
+        }
+        List<ItemDto> itemDtoList = itemService.searchItemsByText(text, from, size);
+        log.debug("Получен искомый список {}", itemDtoList);
+        return ResponseEntity.ok(itemDtoList);
     }
 
     /**

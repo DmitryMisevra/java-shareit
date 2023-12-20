@@ -108,8 +108,8 @@ public class BookingController {
         if (from != null && from < 0) {
             throw new IllegalStateException("Индекс запроса не может меньше нуля");
         }
-        if (size != null && size <= 0) {
-            throw new IllegalStateException("Размер списка не может быть меньше или равен нулю");
+        if (size != null && size < 1) {
+            throw new IllegalStateException("Размер списка не может быть меньше 1");
         }
         List<BookingDto> bookingList = bookingService.getBookingListCreatedByUserId(userId, state, from, size);
         return ResponseEntity.ok(bookingList);
@@ -132,10 +132,10 @@ public class BookingController {
             throw new NotFoundException("Не указан id пользователя");
         }
         if (from != null && from < 0) {
-            throw new IllegalStateException("Индекс запроса не может меньше нуля");
+            throw new IllegalStateException("Индекс запроса не может быть меньше нуля");
         }
-        if (size != null && size <= 0) {
-            throw new IllegalStateException("Размер списка не может быть меньше или равен нулю");
+        if (size != null && size < 1) {
+            throw new IllegalStateException("Размер списка не может быть меньше 1");
         }
 
         return ResponseEntity.ok(bookingService.getBookingListForAllOwnerItems(userId, state, from, size));
