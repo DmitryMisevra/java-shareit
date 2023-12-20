@@ -99,11 +99,19 @@ public class BookingController {
 
     @GetMapping
     ResponseEntity<List<BookingDto>> getBookingListCreatedByUserId(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                                   @RequestParam(defaultValue = "ALL") String state) {
+                                                                   @RequestParam(defaultValue = "ALL") String state,
+                                                                   @RequestParam(required = false) Long from,
+                                                                   @RequestParam(required = false) Long size) {
         if (userId == null) {
             throw new NotFoundException("Не указан id пользователя");
         }
-        List<BookingDto> bookingList = bookingService.getBookingListCreatedByUserId(userId, state);
+        if (from != null && from < 0) {
+            throw new IllegalStateException("Индекс запроса не может меньше нуля");
+        }
+        if (size != null && size <= 0) {
+            throw new IllegalStateException("Размер списка не может быть меньше или равен нулю");
+        }
+        List<BookingDto> bookingList = bookingService.getBookingListCreatedByUserId(userId, state, from, size);
         return ResponseEntity.ok(bookingList);
     }
 
@@ -117,10 +125,19 @@ public class BookingController {
 
     @GetMapping("/owner")
     ResponseEntity<List<BookingDto>> getBookingListForAllOwnerItems(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                                    @RequestParam(defaultValue = "ALL") String state) {
+                                                                    @RequestParam(defaultValue = "ALL") String state,
+                                                                    @RequestParam(required = false) Long from,
+                                                                    @RequestParam(required = false) Long size) {
         if (userId == null) {
             throw new NotFoundException("Не указан id пользователя");
         }
-        return ResponseEntity.ok(bookingService.getBookingListForAllOwnerItems(userId, state));
+        if (from != null && from < 0) {
+            throw new IllegalStateException("Индекс запроса не может меньше нуля");
+        }
+        if (size != null && size <= 0) {
+            throw new IllegalStateException("Размер списка не может быть меньше или равен нулю");
+        }
+
+        return ResponseEntity.ok(bookingService.getBookingListForAllOwnerItems(userId, state, from, size));
     }
 }

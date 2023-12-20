@@ -117,7 +117,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getBookingListCreatedByUserId(long userId, String state) {
+    public List<BookingDto> getBookingListCreatedByUserId(long userId, String state, Long from, Long size) {
         userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Вещь с id: " + userId + " не найдена"));
         QBooking booking = QBooking.booking;
@@ -147,13 +147,18 @@ public class BookingServiceImpl implements BookingService {
                 throw new IllegalStateException("Unknown state: " + state);
         }
 
-        List<Booking> bookings = query.select(booking)
+        JPAQuery<Booking> finalQuery = query.select(booking)
                 .from(booking)
                 .leftJoin(booking.item).fetchJoin()
                 .leftJoin(booking.booker).fetchJoin()
                 .where(predicate)
-                .orderBy(booking.start.desc())
-                .fetch();
+                .orderBy(booking.start.desc());
+
+        if (from != null && size != null) {
+            finalQuery.offset(from).limit(size);
+        }
+
+        List<Booking> bookings = finalQuery.fetch();
 
         return bookings.stream()
                 .map(bookingMapper::bookingToBookingDto)
@@ -161,7 +166,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getBookingListForAllOwnerItems(long userId, String state) {
+    public List<BookingDto> getBookingListForAllOwnerItems(long userId, String state, Long from, Long size) {
         userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Вещь с id: " + userId + " не найдена"));
         checkIfUserHasItems(userId);
@@ -191,13 +196,19 @@ public class BookingServiceImpl implements BookingService {
             default:
                 throw new IllegalStateException("Unknown state: " + state);
         }
-        List<Booking> bookings = query.select(booking)
+
+        JPAQuery<Booking> finalQuery = query.select(booking)
                 .from(booking)
                 .leftJoin(booking.item).fetchJoin()
                 .leftJoin(booking.booker).fetchJoin()
                 .where(predicate)
-                .orderBy(booking.start.desc())
-                .fetch();
+                .orderBy(booking.start.desc());
+
+        if (from != null && size != null) {
+            finalQuery.offset(from).limit(size);
+        }
+
+        List<Booking> bookings = finalQuery.fetch();
         return bookings.stream()
                 .map(bookingMapper::bookingToBookingDto)
                 .collect(Collectors.toList());
