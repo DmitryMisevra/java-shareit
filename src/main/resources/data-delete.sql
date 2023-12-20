@@ -1,9 +1,7 @@
 delete
+from requests;
+delete
 from comments;
-delete
-from requests;
-delete
-from requests;
 delete
 from bookings;
 delete

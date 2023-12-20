@@ -118,8 +118,8 @@ public class ItemServiceImpl implements ItemService {
         comment.setAuthor(author);
         Comment savedComment = commentRepository.save(comment);
         Comment uploadedComment = commentRepository.findById(savedComment.getId())
-                        .orElseThrow(() -> new IllegalStateException("Ошибка при загрузке Comment." +
-                                " Метод вернул null."));
+                .orElseThrow(() -> new IllegalStateException("Ошибка при загрузке Comment." +
+                        " Метод вернул null."));
         return Optional.ofNullable(commentMapper.commentToCommentDto(uploadedComment)).orElseThrow(() ->
                 new IllegalStateException("Ошибка конвертации CommentDto->Comment. Метод вернул null."));
     }

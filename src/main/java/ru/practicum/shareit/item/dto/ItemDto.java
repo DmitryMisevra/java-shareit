@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
 
 import javax.validation.constraints.NotBlank;
@@ -18,6 +19,7 @@ import java.util.List;
 @Data
 @Builder
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class ItemDto {
 
     @Positive(message = "Id вещи должен быть положительным числом")
@@ -32,6 +34,7 @@ public class ItemDto {
     private final Long ownerId;
     @NotNull
     private final Boolean available;
+    private final Long requestId;
     private BookingInfoDto lastBooking;
     private BookingInfoDto nextBooking;
     private List<CommentDto> comments;
