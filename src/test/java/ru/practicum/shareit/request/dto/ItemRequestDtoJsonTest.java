@@ -8,6 +8,7 @@ import org.springframework.boot.test.json.JsonContent;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class ItemRequestDtoJsonTest {
 
     @Test
     public void testItemRequestDtoSerialization() throws Exception {
-        LocalDateTime createdTime = LocalDateTime.now();
+        LocalDateTime createdTime = LocalDateTime.of(2023, Month.DECEMBER, 10, 15, 30);
         List<ItemDto> itemList = Collections.singletonList(itemDto);
 
         ItemRequestDto dto = ItemRequestDto.builder()
@@ -44,7 +45,8 @@ public class ItemRequestDtoJsonTest {
         assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(1);
         assertThat(result).extractingJsonPathStringValue("$.description")
                 .isEqualTo("Тестовое описание");
-        assertThat(result).extractingJsonPathStringValue("$.created").isEqualTo(createdTime.toString());
+        assertThat(result).extractingJsonPathStringValue("$.created")
+                .isEqualTo("2023-12-10T15:30:00");
 
         assertThat(result).extractingJsonPathArrayValue("$.items").hasSize(1);
         assertThat(result).extractingJsonPathNumberValue("$.items[0].id").isEqualTo(1);
