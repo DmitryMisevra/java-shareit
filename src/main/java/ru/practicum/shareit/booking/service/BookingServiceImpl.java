@@ -119,7 +119,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getBookingListCreatedByUserId(long userId, String state, Long from, Long size) {
         userRepository.findById(userId).orElseThrow(() ->
-                new NotFoundException("Вещь с id: " + userId + " не найдена"));
+                new NotFoundException("Пользователь с id: " + userId + " не найден"));
         QBooking booking = QBooking.booking;
         JPAQuery<?> query = new JPAQuery<Void>(entityManager);
 
@@ -168,7 +168,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getBookingListForAllOwnerItems(long userId, String state, Long from, Long size) {
         userRepository.findById(userId).orElseThrow(() ->
-                new NotFoundException("Вещь с id: " + userId + " не найдена"));
+                new NotFoundException("Пользователь с id: " + userId + " не найден"));
         checkIfUserHasItems(userId);
 
         QBooking booking = QBooking.booking;

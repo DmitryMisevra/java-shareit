@@ -2,6 +2,7 @@ package ru.practicum.shareit.error;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -19,7 +20,8 @@ public class ErrorHandler {
 
     @ExceptionHandler({MethodArgumentNotValidException.class, ConstraintViolationException.class,
             ItemNotAvailableException.class, MethodArgumentTypeMismatchException.class, IllegalStateException.class,
-            MissingServletRequestParameterException.class})
+            MissingServletRequestParameterException.class, IllegalArgumentException.class,
+            MissingRequestHeaderException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse validationException(final RuntimeException e) {
         return new ErrorResponse(e.getMessage());
