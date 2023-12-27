@@ -379,7 +379,5 @@ public class BookingServiceIntegrationTest {
         assertThat(firstPageResults.get(0).getId(), not(equalTo(secondPageResults.get(0).getId())));
         assertThat(firstPageResults.get(1).getId(), not(equalTo(secondPageResults.get(1).getId())));
     }
-
-
 }
 
