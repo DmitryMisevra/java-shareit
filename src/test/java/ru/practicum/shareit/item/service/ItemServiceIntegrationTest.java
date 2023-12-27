@@ -1,9 +1,9 @@
 package ru.practicum.shareit.item.service;
 
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -32,7 +32,6 @@ import static org.hamcrest.Matchers.notNullValue;
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ItemServiceIntegrationTest {
 
     @Autowired
@@ -57,8 +56,8 @@ public class ItemServiceIntegrationTest {
     Booking pastBooking;
     Booking futureBooking;
 
-    @BeforeAll
-    void beforeAll() {
+    @BeforeEach
+    void beforeEach() {
         user1 = User.builder()
                 .name("user1")
                 .email("user1@user.com")
@@ -69,33 +68,41 @@ public class ItemServiceIntegrationTest {
                 .email("user2@user.com")
                 .build();
 
+        user1 = userRepository.save(user1);
+        user2 = userRepository.save(user2);
+
         item1 = Item.builder()
                 .name("item1")
                 .description("item1 description")
-                .ownerId(1L)
+                .ownerId(user1.getId())
                 .available(true)
                 .build();
 
         item2 = Item.builder()
                 .name("item2")
                 .description("item2 description")
-                .ownerId(2L)
+                .ownerId(user2.getId())
                 .available(true)
                 .build();
 
         item3 = Item.builder()
                 .name("item3")
                 .description("item1 description")
-                .ownerId(2L)
+                .ownerId(user2.getId())
                 .available(true)
                 .build();
 
         item4 = Item.builder()
                 .name("item4")
                 .description("item4 description")
-                .ownerId(2L)
+                .ownerId(user2.getId())
                 .available(true)
                 .build();
+
+        item1 = itemRepository.save(item1);
+        item2 = itemRepository.save(item2);
+        item3 = itemRepository.save(item3);
+        item4 = itemRepository.save(item4);
 
         pastBooking = Booking.builder()
                 .item(item1)
@@ -113,21 +120,20 @@ public class ItemServiceIntegrationTest {
                 .status(Status.APPROVED)
                 .build();
 
-        user1 = userRepository.save(user1);
-        user2 = userRepository.save(user2);
-
-        item1 = itemRepository.save(item1);
-        item2 = itemRepository.save(item2);
-        item3 = itemRepository.save(item3);
-        item4 = itemRepository.save(item4);
-
         pastBooking = bookingRepository.save(pastBooking);
         futureBooking = bookingRepository.save(futureBooking);
     }
 
+    @AfterEach
+    void tearDown() {
+        bookingRepository.deleteAll();
+        itemRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
     @Test
     void getItemListByUserId_withoutPagination_returnsItemList() {
-        long userId = 1L;
+        long userId = user1.getId();
         Long from = null;
         Long size = null;
 
@@ -136,14 +142,14 @@ public class ItemServiceIntegrationTest {
         assertThat(result, is(not(empty())));
         assertThat(result, hasSize(1));
         result.forEach(itemDto -> {
-            assertThat(itemDto.getLastBooking(), hasProperty("id", equalTo(1L)));
-            assertThat(itemDto.getNextBooking(), hasProperty("id", equalTo(2L)));
+            assertThat(itemDto.getLastBooking(), hasProperty("id", equalTo(pastBooking.getId())));
+            assertThat(itemDto.getNextBooking(), hasProperty("id", equalTo(futureBooking.getId())));
         });
     }
 
     @Test
     void getItemListByUserId_withPagination_returnsItemList() {
-        long userId = 2L;
+        long userId = user2.getId();
         Long from = 0L;
         Long size = 2L;
 

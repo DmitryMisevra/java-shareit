@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.repository;
 
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -29,94 +30,75 @@ public class BookingRepositoryTest {
     @Autowired
     private BookingRepository bookingRepository;
 
-    User user1 = User.builder()
-            .name("user1")
-            .email("user1@user.com")
-            .build();
+    User user1;
+    User user2;
+    Item item1;
+    Item item2;
+    Booking booking1;
+    Booking booking2;
 
-    User user2 = User.builder()
-            .name("user2")
-            .email("user2@user.com")
-            .build();
+    @BeforeEach
+    void setUp() {
+        user1 = User.builder()
+                .name("user1")
+                .email("user1@user.com")
+                .build();
 
-    Item item1 = Item.builder()
-            .name("Test name1")
-            .description("Test description1")
-            .ownerId(2L)
-            .available(true)
-            .build();
+        user2 = User.builder()
+                .name("user2")
+                .email("user2@user.com")
+                .build();
 
-    Item item2 = Item.builder()
-            .name("Test name2")
-            .description("Test description2")
-            .ownerId(2L)
-            .available(true)
-            .build();
-
-    Booking booking1 = Booking.builder()
-            .item(item1)
-            .booker(user1)
-            .start(LocalDateTime.now().plusDays(1))
-            .end(LocalDateTime.now().plusDays(3))
-            .status(Status.WAITING)
-            .build();
-
-    Booking booking2 = Booking.builder()
-            .item(item2)
-            .booker(user2)
-            .start(LocalDateTime.now().plusDays(1))
-            .end(LocalDateTime.now().plusDays(3))
-            .status(Status.WAITING)
-            .build();
-
-    Booking pastBooking = Booking.builder()
-            .item(item1)
-            .booker(user1)
-            .start(LocalDateTime.now().minusDays(5))
-            .end(LocalDateTime.now().minusDays(3))
-            .status(Status.APPROVED)
-            .build();
-
-    Booking pastBookingWithWrongStatus = Booking.builder()
-            .item(item1)
-            .booker(user1)
-            .start(LocalDateTime.now().minusDays(5))
-            .end(LocalDateTime.now().minusDays(3))
-            .status(Status.WAITING)
-            .build();
-
-    Booking futureBooking = Booking.builder()
-            .item(item1)
-            .booker(user1)
-            .start(LocalDateTime.now().plusDays(3))
-            .end(LocalDateTime.now().plusDays(5))
-            .status(Status.APPROVED)
-            .build();
-
-    Booking futureBookingWithWrongStatus = Booking.builder()
-            .item(item1)
-            .booker(user1)
-            .start(LocalDateTime.now().plusDays(3))
-            .end(LocalDateTime.now().plusDays(5))
-            .status(Status.WAITING)
-            .build();
-
-    @Test
-    void findById_WhenBookingExists_thenReturnBooking() {
         entityManager.persist(user1);
         entityManager.persist(user2);
+
+        item1 = Item.builder()
+                .name("Test name1")
+                .description("Test description1")
+                .ownerId(user2.getId())
+                .available(true)
+                .build();
+
+        item2 = Item.builder()
+                .name("Test name2")
+                .description("Test description2")
+                .ownerId(user2.getId())
+                .available(true)
+                .build();
+
+        entityManager.persist(item1);
         entityManager.persist(item2);
+
+        booking1 = Booking.builder()
+                .item(item1)
+                .booker(user1)
+                .start(LocalDateTime.now().plusDays(1))
+                .end(LocalDateTime.now().plusDays(3))
+                .status(Status.WAITING)
+                .build();
+
+        booking2 = Booking.builder()
+                .item(item2)
+                .booker(user2)
+                .start(LocalDateTime.now().plusDays(1))
+                .end(LocalDateTime.now().plusDays(3))
+                .status(Status.WAITING)
+                .build();
+
+        entityManager.persist(booking1);
         entityManager.persist(booking2);
 
         entityManager.flush();
+    }
 
-
-        Optional<Booking> foundBooking = bookingRepository.findById(1L);
+    @Test
+    void findById_WhenBookingExists_thenReturnBooking() {
+        Optional<Booking> foundBooking = bookingRepository.findById(booking1.getId());
 
         assertTrue(foundBooking.isPresent());
-        assertEquals(1L, foundBooking.get().getId());
-        assertEquals(booking2.getBooker().getId(), foundBooking.get().getBooker().getId());
-        assertEquals(booking2.getItem().getId(), foundBooking.get().getItem().getId());
+        assertEquals(booking1.getId(), foundBooking.get().getId());
+        assertEquals(booking1.getBooker().getId(), foundBooking.get().getBooker().getId());
+        assertEquals(booking1.getItem().getId(), foundBooking.get().getItem().getId());
     }
 
     @Test
@@ -128,14 +110,17 @@ public class BookingRepositoryTest {
 
     @Test
     void findLastBookingByItemId_WhenBookingExists_thenReturnBookingInfo() {
-        entityManager.persist(user1);
-        entityManager.persist(user2);
-        entityManager.persist(item1);
+        Booking pastBooking = Booking.builder()
+                .item(item1)
+                .booker(user1)
+                .start(LocalDateTime.now().minusDays(5))
+                .end(LocalDateTime.now().minusDays(3))
+                .status(Status.APPROVED)
+                .build();
         entityManager.persist(pastBooking);
-
         entityManager.flush();
 
-        Page<BookingInfoDto> result = bookingRepository.findLastBookingByItemId(1L,
+        Page<BookingInfoDto> result = bookingRepository.findLastBookingByItemId(item1.getId(),
                 PageRequest.of(0, 10));
 
         assertFalse(result.isEmpty());
@@ -148,14 +133,17 @@ public class BookingRepositoryTest {
 
     @Test
     void findLastBookingByItemId_WhenNoBookingExists_thenReturnEmptyResult() {
-        entityManager.persist(user1);
-        entityManager.persist(user2);
-        entityManager.persist(item1);
+        Booking pastBookingWithWrongStatus = Booking.builder()
+                .item(item1)
+                .booker(user1)
+                .start(LocalDateTime.now().minusDays(5))
+                .end(LocalDateTime.now().minusDays(3))
+                .status(Status.WAITING)
+                .build();
         entityManager.persist(pastBookingWithWrongStatus);
-
         entityManager.flush();
 
-        Page<BookingInfoDto> result = bookingRepository.findLastBookingByItemId(1L,
+        Page<BookingInfoDto> result = bookingRepository.findLastBookingByItemId(item1.getId(),
                 PageRequest.of(0, 10));
 
         assertTrue(result.isEmpty());
@@ -163,14 +151,17 @@ public class BookingRepositoryTest {
 
     @Test
     void findNextBookingByItemId_WhenBookingExists_thenReturnBookingInfo() {
-        entityManager.persist(user1);
-        entityManager.persist(user2);
-        entityManager.persist(item1);
+        Booking futureBooking = Booking.builder()
+                .item(item1)
+                .booker(user1)
+                .start(LocalDateTime.now().plusDays(3))
+                .end(LocalDateTime.now().plusDays(5))
+                .status(Status.APPROVED)
+                .build();
         entityManager.persist(futureBooking);
-
         entityManager.flush();
 
-        Page<BookingInfoDto> result = bookingRepository.findNextBookingByItemId(1L,
+        Page<BookingInfoDto> result = bookingRepository.findNextBookingByItemId(item1.getId(),
                 PageRequest.of(0, 10));
 
         assertFalse(result.isEmpty());
@@ -183,14 +174,17 @@ public class BookingRepositoryTest {
 
     @Test
     void findNextBookingByItemId_WhenNoBookingExists_thenReturnEmptyResult() {
-        entityManager.persist(user1);
-        entityManager.persist(user2);
-        entityManager.persist(item1);
+        Booking futureBookingWithWrongStatus = Booking.builder()
+                .item(item1)
+                .booker(user1)
+                .start(LocalDateTime.now().plusDays(3))
+                .end(LocalDateTime.now().plusDays(5))
+                .status(Status.WAITING)
+                .build();
         entityManager.persist(futureBookingWithWrongStatus);
-
         entityManager.flush();
 
-        Page<BookingInfoDto> result = bookingRepository.findNextBookingByItemId(1L,
+        Page<BookingInfoDto> result = bookingRepository.findNextBookingByItemId(item1.getId(),
                 PageRequest.of(0, 10));
 
         assertTrue(result.isEmpty());
@@ -198,11 +192,14 @@ public class BookingRepositoryTest {
 
     @Test
     void checkIfCompletedBookingExistsForItemByUserId_WhenBookingExists_thenReturnTrue() {
-        entityManager.persist(user1);
-        entityManager.persist(user2);
-        entityManager.persist(item1);
+        Booking pastBooking = Booking.builder()
+                .item(item1)
+                .booker(user1)
+                .start(LocalDateTime.now().minusDays(5))
+                .end(LocalDateTime.now().minusDays(3))
+                .status(Status.APPROVED)
+                .build();
         entityManager.persist(pastBooking);
-
         entityManager.flush();
 
         boolean result = bookingRepository.checkIfCompletedBookingExistsForItemByUserId(user1.getId(), item1.getId());
@@ -212,11 +209,14 @@ public class BookingRepositoryTest {
 
     @Test
     void checkIfCompletedBookingExistsForItemByUserId_WhenNoBookingExists_thenReturnFalse() {
-        entityManager.persist(user1);
-        entityManager.persist(user2);
-        entityManager.persist(item1);
+        Booking pastBookingWithWrongStatus = Booking.builder()
+                .item(item1)
+                .booker(user1)
+                .start(LocalDateTime.now().minusDays(5))
+                .end(LocalDateTime.now().minusDays(3))
+                .status(Status.WAITING)
+                .build();
         entityManager.persist(pastBookingWithWrongStatus);
-
         entityManager.flush();
 
         boolean result = bookingRepository.checkIfCompletedBookingExistsForItemByUserId(user1.getId(), item1.getId());

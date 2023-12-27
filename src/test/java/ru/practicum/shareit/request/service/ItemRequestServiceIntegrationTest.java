@@ -1,7 +1,9 @@
 package ru.practicum.shareit.request.service;
 
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +36,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ItemRequestServiceIntegrationTest {
 
     @Autowired
@@ -57,8 +58,9 @@ public class ItemRequestServiceIntegrationTest {
     ItemRequest itemRequest1;
     ItemRequest itemRequest2;
 
-    @BeforeAll
-    void beforeAll() {
+
+    @BeforeEach
+    void beforeEach() {
         userWithRequests = User.builder()
                 .name("user1")
                 .email("user1@user.com")
@@ -69,21 +71,8 @@ public class ItemRequestServiceIntegrationTest {
                 .email("user2@user.com")
                 .build();
 
-        itemWithRequestId1 = Item.builder()
-                .name("item1")
-                .description("item1 description")
-                .ownerId(2L)
-                .available(true)
-                .requestId(1L)
-                .build();
-
-        itemWithRequestId2 = Item.builder()
-                .name("item1")
-                .description("item2 description")
-                .ownerId(2L)
-                .available(true)
-                .requestId(1L)
-                .build();
+        userWithRequests = userRepository.save(userWithRequests);
+        userWithNoRequests = userRepository.save(userWithNoRequests);
 
         itemRequest1 = ItemRequest.builder()
                 .description("Test description")
@@ -97,17 +86,39 @@ public class ItemRequestServiceIntegrationTest {
                 .requestor(userWithRequests)
                 .build();
 
-        userWithRequests = userRepository.save(userWithRequests);
-        userWithNoRequests = userRepository.save(userWithNoRequests);
         itemRequest1 = itemRequestRepository.save(itemRequest1);
         itemRequest2 = itemRequestRepository.save(itemRequest2);
+
+        itemWithRequestId1 = Item.builder()
+                .name("item1")
+                .description("item1 description")
+                .ownerId(userWithRequests.getId())
+                .available(true)
+                .requestId(itemRequest1.getId())
+                .build();
+
+        itemWithRequestId2 = Item.builder()
+                .name("item1")
+                .description("item2 description")
+                .ownerId(userWithRequests.getId())
+                .available(true)
+                .requestId(itemRequest1.getId())
+                .build();
+
         itemWithRequestId1 = itemRepository.save(itemWithRequestId1);
         itemWithRequestId2 = itemRepository.save(itemWithRequestId2);
     }
 
+    @AfterEach
+    void tearDown() {
+        itemRepository.deleteAll();
+        itemRequestRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
     @Test
     void getItemRequestListByUserId_whenUserExists_andHasRequests_thenReturnItemRequestDtoList() {
-        long ownerId = 1L;
+        long ownerId = userWithRequests.getId();
 
         List<ItemRequestDto> result = itemRequestService.getItemRequestListByUserId(ownerId);
 
@@ -125,7 +136,7 @@ public class ItemRequestServiceIntegrationTest {
 
     @Test
     void getItemRequestListByUserId_whenUserExists_butNoRequests_thenReturnEmptyList() {
-        long userId = 2L;
+        long userId = userWithNoRequests.getId();
 
         List<ItemRequestDto> result = itemRequestService.getItemRequestListByUserId(userId);
 
@@ -134,7 +145,7 @@ public class ItemRequestServiceIntegrationTest {
 
     @Test
     void getAllItemRequestList_whenUserExists_thenReturnItemRequestDtoList() {
-        long userId = 2L;
+        long userId = userWithNoRequests.getId();
 
         List<ItemRequestDto> result = itemRequestService.getAllItemRequestList(userId, null, null);
 
@@ -152,7 +163,7 @@ public class ItemRequestServiceIntegrationTest {
 
     @Test
     void getAllItemRequestList_withPagination_thenReturnPaginatedResult() {
-        long userId = 2L;
+        long userId = userWithNoRequests.getId();
         Long from = 0L;
         Long size = 1L;
 
@@ -163,7 +174,7 @@ public class ItemRequestServiceIntegrationTest {
 
     @Test
     void getAllItemRequestList_whenNoMatchingRequests_thenReturnEmptyList() {
-        long userId = 1L;
+        long userId = userWithRequests.getId();
 
         List<ItemRequestDto> result = itemRequestService.getAllItemRequestList(userId, null, null);
 
@@ -172,22 +183,22 @@ public class ItemRequestServiceIntegrationTest {
 
     @Test
     void getRequestByItemRequestId_whenRequestAndUserExist_thenReturnItemRequestDto() {
-        long userId = 1L;
-        long requestId = 1L;
+        long userId = userWithRequests.getId();
+        long requestId = itemRequest1.getId();
 
         ItemRequestDto result = itemRequestService.getRequestByItemRequestId(userId, requestId);
 
         assertThat(result, is(notNullValue()));
         assertThat(result.getId(), is(equalTo(requestId)));
         assertThat(result.getItems(), hasSize(2));
-        assertThat(result.getItems(), hasItem(hasProperty("id", is(1L))));
-        assertThat(result.getItems(), hasItem(hasProperty("id", is(2L))));
+        assertThat(result.getItems(), hasItem(hasProperty("id", is(itemWithRequestId1.getId()))));
+        assertThat(result.getItems(), hasItem(hasProperty("id", is(itemWithRequestId2.getId()))));
     }
 
     @Test
     void getRequestByItemRequestId_whenUserNotFound_thenThrowNotFoundException() {
         long invalidUserId = -1L;
-        long requestId = 1L;
+        long requestId = itemRequest1.getId();
 
         assertThrows(NotFoundException.class,
                 () -> itemRequestService.getRequestByItemRequestId(invalidUserId, requestId));
@@ -195,7 +206,7 @@ public class ItemRequestServiceIntegrationTest {
 
     @Test
     void getRequestByItemRequestId_whenRequestNotFound_thenThrowNotFoundException() {
-        long userId = 1L;
+        long userId = userWithRequests.getId();
         long invalidRequestId = -1L;
 
         assertThrows(NotFoundException.class,

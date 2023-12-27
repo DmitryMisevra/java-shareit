@@ -1,8 +1,8 @@
 package ru.practicum.shareit.booking.service;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -32,7 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BookingServiceIntegrationTest {
 
     @Autowired
@@ -61,7 +60,7 @@ public class BookingServiceIntegrationTest {
     Booking currentBooking1;
     Booking currentBooking2;
 
-    @BeforeAll
+    @BeforeEach
     void setUp() {
         user1 = User.builder()
                 .name("user1")
@@ -82,17 +81,17 @@ public class BookingServiceIntegrationTest {
         user2 = userRepository.save(user2);
         user3 = userRepository.save(user3);
 
-        Item item1 = Item.builder()
+        item1 = Item.builder()
                 .name("Test name1")
                 .description("Test description1")
-                .ownerId(2L)
+                .ownerId(user2.getId())
                 .available(true)
                 .build();
 
-        Item item2 = Item.builder()
+        item2 = Item.builder()
                 .name("Test name2")
                 .description("Test description2")
-                .ownerId(3L)
+                .ownerId(user3.getId())
                 .available(true)
                 .build();
 
@@ -173,6 +172,13 @@ public class BookingServiceIntegrationTest {
         currentBooking2 = bookingRepository.save(currentBooking2);
     }
 
+    @AfterEach
+    void tearDown() {
+        bookingRepository.deleteAll();
+        itemRepository.deleteAll();
+        bookingRepository.deleteAll();
+    }
+
     @Test
     public void getBookingListCreatedByUserIdTest_whenStatusAll_thenReturnCorrectBookingList() {
         List<BookingDto> result = bookingService.getBookingListCreatedByUserId(user1.getId(),
@@ -231,7 +237,7 @@ public class BookingServiceIntegrationTest {
 
     @Test
     public void getBookingListCreatedByUserIdTest_whenUserNotFound_thenThrowException() {
-        long nonExistentUserId = 999L;
+        long nonExistentUserId = -1L;
 
         Exception exception = assertThrows(NotFoundException.class, () -> {
             bookingService.getBookingListCreatedByUserId(nonExistentUserId, "ALL", null, null);
