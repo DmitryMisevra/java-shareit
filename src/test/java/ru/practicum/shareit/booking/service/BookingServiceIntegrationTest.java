@@ -49,7 +49,6 @@ public class BookingServiceIntegrationTest {
 
     User user1;
     User user2;
-
     User user3;
     Item item1;
     Item item2;
