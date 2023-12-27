@@ -40,16 +40,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public ItemRequestDto addItemRequest(long userId, CreatedItemRequestDto createdItemRequestDto) {
         User requestor = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id: " + userId + " не найден"));
-        ItemRequest itemRequest = Optional.ofNullable(itemRequestMapper
-                        .createdItemRequestDtoToItemRequest(createdItemRequestDto))
-                .orElseThrow(() -> new IllegalStateException("Ошибка конвертации CreatedItemRequestDto->ItemRequest. " +
-                        "Метод вернул null."));
+        ItemRequest itemRequest = itemRequestMapper.createdItemRequestDtoToItemRequest(createdItemRequestDto);
         itemRequest.setRequestor(requestor);
         ItemRequest savedRequest = itemRequestRepository.save(itemRequest);
-        return Optional.ofNullable(itemRequestMapper
-                        .itemRequestToItemRequestDto(savedRequest))
-                .orElseThrow(() -> new IllegalStateException("Ошибка конвертации ItemRequest->ItemRequestDto. Метод " +
-                        "вернул null."));
+        return itemRequestMapper.itemRequestToItemRequestDto(savedRequest);
     }
 
     @Override
@@ -115,10 +109,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         ItemRequest itemRequest = itemRequestRepository.findById(requestId).orElseThrow(() ->
                 new NotFoundException("Запрос с id: " + requestId + " не найден"));
         itemRequest.setItems(findItemsByRequestId(requestId));
-        return Optional.ofNullable(itemRequestMapper
-                        .itemRequestToItemRequestDto(itemRequest))
-                .orElseThrow(() -> new IllegalStateException("Ошибка конвертации ItemRequest->ItemRequestDto. Метод " +
-                        "вернул null."));
+        return (itemRequestMapper.itemRequestToItemRequestDto(itemRequest));
     }
 
     private List<ItemDto> findItemsByRequestId(Long requestId) {

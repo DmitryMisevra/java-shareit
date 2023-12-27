@@ -16,7 +16,6 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,12 +31,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @NonNull
     public UserDto createUser(@NonNull CreatedUserDto createdUserDto) {
-        User user = Optional.ofNullable(userMapper.createdUserDtoToUser(createdUserDto))
-                .orElseThrow(() -> new IllegalStateException("Ошибка конвертации UserDto->User. Метод вернул null."));
+        User user = userMapper.createdUserDtoToUser(createdUserDto);
         try {
-            return Optional.ofNullable(userMapper.userToUserDto(userRepository.save(user)))
-                    .orElseThrow(() -> new IllegalStateException("Ошибка конвертации User->UserDto." +
-                            " Метод вернул null."));
+            return userMapper.userToUserDto(userRepository.save(user));
         } catch (DataIntegrityViolationException e) {
             throw new EmailAlreadyExistsException("Пользователь с таким Email уже существует");
         }
@@ -48,13 +44,10 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(@NonNull long id, UpdatedUserDto updatedUserDto) {
         User updatedUser = userRepository.findById(id).orElseThrow(() ->
                 new NotFoundException("Пользователь с id: " + id + " не найден"));
-        User user = Optional.ofNullable(userMapper.updatedUserDtoToUser(updatedUserDto))
-                .orElseThrow(() -> new IllegalStateException("Ошибка конвертации UserDto->User. Метод вернул null."));
+        User user = userMapper.updatedUserDtoToUser(updatedUserDto);
         updatedUser.updateWith(user);
         try {
-            return Optional.ofNullable(userMapper.userToUserDto(userRepository.save(updatedUser)))
-                    .orElseThrow(() -> new IllegalStateException("Ошибка конвертации User->UserDto." +
-                            " Метод вернул null."));
+            return userMapper.userToUserDto(userRepository.save(updatedUser));
         } catch (DataIntegrityViolationException e) {
             throw new EmailAlreadyExistsException("Пользователь с таким Email уже существует");
         }
@@ -65,8 +58,7 @@ public class UserServiceImpl implements UserService {
     public UserDto getUserById(long id) {
         User foundedUser = userRepository.findById(id).orElseThrow(() ->
                 new NotFoundException("Пользователь с id: " + id + " не найден"));
-        return Optional.ofNullable(userMapper.userToUserDto(foundedUser)).orElseThrow(() ->
-                new IllegalStateException("Ошибка конвертации User->UserDto. Метод вернул null."));
+        return userMapper.userToUserDto(foundedUser);
     }
 
     @Transactional

@@ -56,9 +56,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ItemNotAvailableException("Вещь с id: " + item.getId() + " недоступна для брони в данный момент");
         }
 
-        Booking booking = Optional.ofNullable(bookingMapper.createdBookingDtoToBooking(createdBookingDto))
-                .orElseThrow(() -> new IllegalStateException("Ошибка конвертации BookingDto->Booking. Метод вернул " +
-                        "null."));
+        Booking booking = bookingMapper.createdBookingDtoToBooking(createdBookingDto);
         booking.setBooker(booker);
         booking.setItem(item);
         booking.setStatus(Status.WAITING);
@@ -68,9 +66,7 @@ public class BookingServiceImpl implements BookingService {
         Booking loadedBooking = bookingRepository.findById(savedBooking.getId())
                 .orElseThrow(() -> new IllegalStateException("Ошибка при загрузке Booking. Метод вернул null."));
 
-        return Optional.ofNullable(bookingMapper.bookingToBookingDto(loadedBooking))
-                .orElseThrow(() -> new IllegalStateException("Ошибка конвертации Booking ->BookingDto. Метод вернул " +
-                        "null."));
+        return bookingMapper.bookingToBookingDto(loadedBooking);
     }
 
     @Transactional
@@ -93,9 +89,7 @@ public class BookingServiceImpl implements BookingService {
         Booking updatedBooking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new IllegalStateException("Ошибка при загрузке Booking. Метод вернул null."));
 
-        return Optional.ofNullable(bookingMapper.bookingToBookingDto(updatedBooking))
-                .orElseThrow(() -> new IllegalStateException("Ошибка конвертации Booking ->BookingDto. Метод вернул " +
-                        "null."));
+        return bookingMapper.bookingToBookingDto(updatedBooking);
     }
 
     @Override
@@ -111,9 +105,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ForbiddenUserException("Информация о брони может быть запрошена либо создателем брони, либо " +
                     "владельцем вещи, в адрес которой поступил запрос на бронь");
         }
-        return Optional.ofNullable(bookingMapper.bookingToBookingDto(loadedBooking))
-                .orElseThrow(() -> new IllegalStateException("Ошибка конвертации Booking ->BookingDto. Метод вернул " +
-                        "null."));
+        return bookingMapper.bookingToBookingDto(loadedBooking);
     }
 
     @Override
