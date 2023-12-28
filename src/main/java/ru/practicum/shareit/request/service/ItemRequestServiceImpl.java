@@ -21,7 +21,6 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
