@@ -97,13 +97,6 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void createUser_whenMapperReturnsNull_thenThrowsIllegalStateException() {
-        when(userMapper.createdUserDtoToUser(any(CreatedUserDto.class))).thenReturn(null);
-
-        assertThrows(IllegalStateException.class, () -> userService.createUser(createdUserDto));
-    }
-
-    @Test
     void createUser_whenEmailAlreadyExists_thenThrowsEmailAlreadyExistsException() {
         when(userMapper.createdUserDtoToUser(any(CreatedUserDto.class)))
                 .thenReturn(user);

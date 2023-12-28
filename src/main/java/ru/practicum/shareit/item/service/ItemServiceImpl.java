@@ -50,6 +50,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto createItem(@NonNull long ownerId, CreatedItemDto createdItemDto) {
         userService.getUserById(ownerId);
         Item item = itemMapper.createdItemDtoToItem(createdItemDto);
+        item.setOwnerId(ownerId);
         return itemMapper.itemToItemDto(itemRepository.save(item));
     }
 
