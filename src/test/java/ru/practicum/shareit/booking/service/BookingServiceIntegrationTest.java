@@ -201,6 +201,17 @@ public class BookingServiceIntegrationTest {
         assertThat(result, hasSize(2));
     }
 
+    @Test
+    public void getBookingListCreatedByUserIdTest_whenStatusPAST_thenReturnCorrectBookingList() {
+        List<BookingDto> result = bookingService.getBookingListCreatedByUserId(user1.getId(),
+                "PAST",
+                null,
+                null);
+
+        assertThat(result, is(not(empty())));
+        assertThat(result, hasSize(2));
+    }
+
 
     @Test
     public void getBookingListCreatedByUserIdTest_whenStatusFUTURE_thenReturnCorrectBookingList() {
@@ -227,7 +238,7 @@ public class BookingServiceIntegrationTest {
     @Test
     public void getBookingListCreatedByUserIdTest_whenStatusWAITING_thenReturnCorrectBookingList() {
         List<BookingDto> result = bookingService.getBookingListCreatedByUserId(user1.getId(),
-                "REJECTED",
+                "WAITING",
                 null,
                 null);
 
@@ -305,6 +316,17 @@ public class BookingServiceIntegrationTest {
         assertThat(result, hasSize(1));
     }
 
+    @Test
+    public void getBookingListForAllOwnerItems_whenStatusPAST_thenReturnCorrectBookingList() {
+        List<BookingDto> result = bookingService.getBookingListForAllOwnerItems(user3.getId(),
+                "PAST",
+                null,
+                null);
+
+        assertThat(result, is(not(empty())));
+        assertThat(result, hasSize(1));
+    }
+
 
     @Test
     public void getBookingListForAllOwnerItems_whenStatusFUTURE_thenReturnCorrectBookingList() {
@@ -331,7 +353,7 @@ public class BookingServiceIntegrationTest {
     @Test
     public void getBookingListForAllOwnerItems_whenStatusWAITING_thenReturnCorrectBookingList() {
         List<BookingDto> result = bookingService.getBookingListForAllOwnerItems(user3.getId(),
-                "REJECTED",
+                "WAITING",
                 null,
                 null);
 
