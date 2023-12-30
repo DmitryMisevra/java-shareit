@@ -22,4 +22,5 @@ public class CreatedItemDto {
     private final String description;
     @NotNull
     private final Boolean available;
+    private Long requestId;
 }

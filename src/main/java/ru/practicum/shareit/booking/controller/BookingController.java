@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreatedBookingDto;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.exceptions.NotFoundException;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -39,9 +38,6 @@ public class BookingController {
     @PostMapping
     ResponseEntity<BookingDto> createBooking(@RequestHeader("X-Sharer-User-Id") Long creatorId, @Valid @RequestBody
     CreatedBookingDto createdBookingDto) {
-        if (creatorId == null) {
-            throw new NotFoundException("Не указан id пользователя, который создает запрос на бронь");
-        }
         BookingDto bookingDto = bookingService.createBooking(creatorId, createdBookingDto);
         log.debug("Добавлена новая бронь с id={}", bookingDto.getId());
         return ResponseEntity.ok(bookingDto);
@@ -58,12 +54,6 @@ public class BookingController {
     @PatchMapping(path = "/{bookingId}")
     ResponseEntity<BookingDto> updateBookingStatus(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                    @PathVariable Long bookingId, @RequestParam Boolean approved) {
-        if (userId == null) {
-            throw new NotFoundException("Не указан id пользователя, который создает запрос на бронь");
-        }
-        if (bookingId == null) {
-            throw new NotFoundException("Не указан id брони");
-        }
         BookingDto bookingDto = bookingService.updateBookingStatus(userId, bookingId, approved);
         log.debug("Обновлен статус брони с id={}", bookingDto.getId());
         return ResponseEntity.ok(bookingDto);
@@ -80,12 +70,6 @@ public class BookingController {
     @GetMapping(path = "/{bookingId}")
     ResponseEntity<BookingDto> findBookingById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                @PathVariable Long bookingId) {
-        if (userId == null) {
-            throw new NotFoundException("Не указан id пользователя");
-        }
-        if (bookingId == null) {
-            throw new NotFoundException("Не указан id брони");
-        }
         return ResponseEntity.ok(bookingService.findBookingById(userId, bookingId));
     }
 
@@ -99,11 +83,16 @@ public class BookingController {
 
     @GetMapping
     ResponseEntity<List<BookingDto>> getBookingListCreatedByUserId(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                                   @RequestParam(defaultValue = "ALL") String state) {
-        if (userId == null) {
-            throw new NotFoundException("Не указан id пользователя");
+                                                                   @RequestParam(defaultValue = "ALL") String state,
+                                                                   @RequestParam(required = false) Long from,
+                                                                   @RequestParam(required = false) Long size) {
+        if (from != null && from < 0) {
+            throw new IllegalStateException("Индекс запроса не может меньше нуля");
         }
-        List<BookingDto> bookingList = bookingService.getBookingListCreatedByUserId(userId, state);
+        if (size != null && size < 1) {
+            throw new IllegalStateException("Размер списка не может быть меньше 1");
+        }
+        List<BookingDto> bookingList = bookingService.getBookingListCreatedByUserId(userId, state, from, size);
         return ResponseEntity.ok(bookingList);
     }
 
@@ -117,10 +106,16 @@ public class BookingController {
 
     @GetMapping("/owner")
     ResponseEntity<List<BookingDto>> getBookingListForAllOwnerItems(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                                    @RequestParam(defaultValue = "ALL") String state) {
-        if (userId == null) {
-            throw new NotFoundException("Не указан id пользователя");
+                                                                    @RequestParam(defaultValue = "ALL") String state,
+                                                                    @RequestParam(required = false) Long from,
+                                                                    @RequestParam(required = false) Long size) {
+        if (from != null && from < 0) {
+            throw new IllegalStateException("Индекс запроса не может быть меньше нуля");
         }
-        return ResponseEntity.ok(bookingService.getBookingListForAllOwnerItems(userId, state));
+        if (size != null && size < 1) {
+            throw new IllegalStateException("Размер списка не может быть меньше 1");
+        }
+
+        return ResponseEntity.ok(bookingService.getBookingListForAllOwnerItems(userId, state, from, size));
     }
 }

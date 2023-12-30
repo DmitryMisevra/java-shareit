@@ -24,7 +24,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,9 +55,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ItemNotAvailableException("Вещь с id: " + item.getId() + " недоступна для брони в данный момент");
         }
 
-        Booking booking = Optional.ofNullable(bookingMapper.createdBookingDtoToBooking(createdBookingDto))
-                .orElseThrow(() -> new IllegalStateException("Ошибка конвертации BookingDto->Booking. Метод вернул " +
-                        "null."));
+        Booking booking = bookingMapper.createdBookingDtoToBooking(createdBookingDto);
         booking.setBooker(booker);
         booking.setItem(item);
         booking.setStatus(Status.WAITING);
@@ -68,9 +65,7 @@ public class BookingServiceImpl implements BookingService {
         Booking loadedBooking = bookingRepository.findById(savedBooking.getId())
                 .orElseThrow(() -> new IllegalStateException("Ошибка при загрузке Booking. Метод вернул null."));
 
-        return Optional.ofNullable(bookingMapper.bookingToBookingDto(loadedBooking))
-                .orElseThrow(() -> new IllegalStateException("Ошибка конвертации Booking ->BookingDto. Метод вернул " +
-                        "null."));
+        return bookingMapper.bookingToBookingDto(loadedBooking);
     }
 
     @Transactional
@@ -93,9 +88,7 @@ public class BookingServiceImpl implements BookingService {
         Booking updatedBooking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new IllegalStateException("Ошибка при загрузке Booking. Метод вернул null."));
 
-        return Optional.ofNullable(bookingMapper.bookingToBookingDto(updatedBooking))
-                .orElseThrow(() -> new IllegalStateException("Ошибка конвертации Booking ->BookingDto. Метод вернул " +
-                        "null."));
+        return bookingMapper.bookingToBookingDto(updatedBooking);
     }
 
     @Override
@@ -111,15 +104,13 @@ public class BookingServiceImpl implements BookingService {
             throw new ForbiddenUserException("Информация о брони может быть запрошена либо создателем брони, либо " +
                     "владельцем вещи, в адрес которой поступил запрос на бронь");
         }
-        return Optional.ofNullable(bookingMapper.bookingToBookingDto(loadedBooking))
-                .orElseThrow(() -> new IllegalStateException("Ошибка конвертации Booking ->BookingDto. Метод вернул " +
-                        "null."));
+        return bookingMapper.bookingToBookingDto(loadedBooking);
     }
 
     @Override
-    public List<BookingDto> getBookingListCreatedByUserId(long userId, String state) {
+    public List<BookingDto> getBookingListCreatedByUserId(long userId, String state, Long from, Long size) {
         userRepository.findById(userId).orElseThrow(() ->
-                new NotFoundException("Вещь с id: " + userId + " не найдена"));
+                new NotFoundException("Пользователь с id: " + userId + " не найден"));
         QBooking booking = QBooking.booking;
         JPAQuery<?> query = new JPAQuery<Void>(entityManager);
 
@@ -147,13 +138,18 @@ public class BookingServiceImpl implements BookingService {
                 throw new IllegalStateException("Unknown state: " + state);
         }
 
-        List<Booking> bookings = query.select(booking)
+        JPAQuery<Booking> finalQuery = query.select(booking)
                 .from(booking)
                 .leftJoin(booking.item).fetchJoin()
                 .leftJoin(booking.booker).fetchJoin()
                 .where(predicate)
-                .orderBy(booking.start.desc())
-                .fetch();
+                .orderBy(booking.start.desc());
+
+        if (from != null && size != null) {
+            finalQuery.offset(from).limit(size);
+        }
+
+        List<Booking> bookings = finalQuery.fetch();
 
         return bookings.stream()
                 .map(bookingMapper::bookingToBookingDto)
@@ -161,9 +157,9 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getBookingListForAllOwnerItems(long userId, String state) {
+    public List<BookingDto> getBookingListForAllOwnerItems(long userId, String state, Long from, Long size) {
         userRepository.findById(userId).orElseThrow(() ->
-                new NotFoundException("Вещь с id: " + userId + " не найдена"));
+                new NotFoundException("Пользователь с id: " + userId + " не найден"));
         checkIfUserHasItems(userId);
 
         QBooking booking = QBooking.booking;
@@ -191,13 +187,19 @@ public class BookingServiceImpl implements BookingService {
             default:
                 throw new IllegalStateException("Unknown state: " + state);
         }
-        List<Booking> bookings = query.select(booking)
+
+        JPAQuery<Booking> finalQuery = query.select(booking)
                 .from(booking)
                 .leftJoin(booking.item).fetchJoin()
                 .leftJoin(booking.booker).fetchJoin()
                 .where(predicate)
-                .orderBy(booking.start.desc())
-                .fetch();
+                .orderBy(booking.start.desc());
+
+        if (from != null && size != null) {
+            finalQuery.offset(from).limit(size);
+        }
+
+        List<Booking> bookings = finalQuery.fetch();
         return bookings.stream()
                 .map(bookingMapper::bookingToBookingDto)
                 .collect(Collectors.toList());

@@ -44,9 +44,6 @@ public class ItemController {
     @PostMapping
     ResponseEntity<ItemDto> addItem(@RequestHeader("X-Sharer-User-Id") Long ownerId,
                                     @Valid @RequestBody CreatedItemDto createdItemDto) {
-        if (ownerId == null) {
-            throw new NotFoundException("Не указан id собственника вещи");
-        }
         ItemDto itemDto = itemService.createItem(ownerId, createdItemDto);
         log.debug("Добавлен новый пользователь с id={}", itemDto.getId());
         return ResponseEntity.ok(itemDto);
@@ -63,9 +60,6 @@ public class ItemController {
     @PatchMapping(path = "/{itemId}")
     ResponseEntity<ItemDto> updateItem(@RequestHeader("X-Sharer-User-Id") Long ownerId, @PathVariable long itemId,
                                        @Valid @RequestBody UpdatedItemDto updatedItemDto) {
-        if (ownerId == null) {
-            throw new NotFoundException("Не указан id собственника вещи");
-        }
         if (itemId <= 0) {
             throw new NotFoundException("Id вещи должен быть положительным числом");
         }
@@ -84,9 +78,6 @@ public class ItemController {
 
     @GetMapping(path = "/{itemId}")
     ResponseEntity<ItemDto> getItemById(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable long itemId) {
-        if (userId == null) {
-            throw new NotFoundException("Не указан id пользователя, запрашивающего информацию о вещи");
-        }
         if (itemId <= 0) {
             throw new NotFoundException("Id вещи должен быть положительным числом");
         }
@@ -101,11 +92,18 @@ public class ItemController {
      */
 
     @GetMapping
-    ResponseEntity<List<ItemDto>> getItemListByUserId(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
-        if (ownerId == null) {
-            throw new NotFoundException("Не указан id собственника вещи");
+    ResponseEntity<List<ItemDto>> getItemListByUserId(@RequestHeader("X-Sharer-User-Id") Long ownerId,
+                                                      @RequestParam(required = false) Long from,
+                                                      @RequestParam(required = false) Long size) {
+        if (from != null && from < 0) {
+            throw new IllegalStateException("Индекс запроса не может быть меньше нуля");
         }
-        return ResponseEntity.ok(itemService.getItemListByUserId(ownerId));
+        if (size != null && size < 1) {
+            throw new IllegalStateException("Размер списка не может быть меньше 1");
+        }
+        List<ItemDto> itemDtoList = itemService.getItemListByUserId(ownerId, from, size);
+        log.debug("Получен искомый список {}", itemDtoList);
+        return ResponseEntity.ok(itemDtoList);
     }
 
     /**
@@ -116,12 +114,21 @@ public class ItemController {
      */
 
     @GetMapping("/search")
-    ResponseEntity<List<ItemDto>> searchItemsByText(@RequestParam String text) {
+    ResponseEntity<List<ItemDto>> searchItemsByText(@RequestParam String text,
+                                                    @RequestParam(required = false) Long from,
+                                                    @RequestParam(required = false) Long size) {
         if (text.isEmpty()) {
             return ResponseEntity.ok(Collections.emptyList());
         }
-        log.debug("Получены искомый список {}", itemService.searchItemsByText(text));
-        return ResponseEntity.ok(itemService.searchItemsByText(text));
+        if (from != null && from < 0) {
+            throw new IllegalStateException("Индекс запроса не может быть меньше нуля");
+        }
+        if (size != null && size < 1) {
+            throw new IllegalStateException("Размер списка не может быть меньше 1");
+        }
+        List<ItemDto> itemDtoList = itemService.searchItemsByText(text, from, size);
+        log.debug("Получен искомый список {}", itemDtoList);
+        return ResponseEntity.ok(itemDtoList);
     }
 
     /**
@@ -136,9 +143,6 @@ public class ItemController {
     @PostMapping(path = "/{itemId}/comment")
     ResponseEntity<CommentDto> addComment(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
                                           @Valid @RequestBody CreatedCommentDto createdCommentDto) {
-        if (userId == null) {
-            throw new NotFoundException("Не указан id комментатора");
-        }
         if (itemId == null) {
             throw new NotFoundException("Не указан id вещи, к которой добавляется отзыв");
         }

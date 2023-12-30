@@ -49,11 +49,9 @@ public class ItemServiceImpl implements ItemService {
     @NonNull
     public ItemDto createItem(@NonNull long ownerId, CreatedItemDto createdItemDto) {
         userService.getUserById(ownerId);
-        Item item = Optional.ofNullable(itemMapper.createdItemDtoToItem(createdItemDto))
-                .orElseThrow(() -> new IllegalStateException("Ошибка конвертации itemDto->Item. Метод вернул null."));
+        Item item = itemMapper.createdItemDtoToItem(createdItemDto);
         item.setOwnerId(ownerId);
-        return Optional.ofNullable(itemMapper.itemToItemDto(itemRepository.save(item))).orElseThrow(() ->
-                new IllegalStateException("Ошибка конвертации Item->ItemDto. Метод вернул null."));
+        return itemMapper.itemToItemDto(itemRepository.save(item));
     }
 
     @Transactional
@@ -65,11 +63,9 @@ public class ItemServiceImpl implements ItemService {
         if (updateditem.getOwnerId() != ownerId) {
             throw new ForbiddenUserException("Данные о вещи может обновлять только владелец");
         }
-        Item item = Optional.ofNullable(itemMapper.updatedItemDtoToItem(updatedItemDto))
-                .orElseThrow(() -> new IllegalStateException("Ошибка конвертации itemDto->Item. Метод вернул null."));
+        Item item = itemMapper.updatedItemDtoToItem(updatedItemDto);
         updateditem.updateWith(item);
-        return Optional.ofNullable(itemMapper.itemToItemDto(itemRepository.save(updateditem))).orElseThrow(() ->
-                new IllegalStateException("Ошибка конвертации Item->ItemDto. Метод вернул null."));
+        return itemMapper.itemToItemDto(itemRepository.save(updateditem));
     }
 
     @Override
@@ -80,23 +76,37 @@ public class ItemServiceImpl implements ItemService {
             addNextAndLastBookings(foundItem);
         }
         foundItem.setComments(commentRepository.findCommentsByItemId(itemId));
-        return Optional.ofNullable(itemMapper.itemToItemDto(foundItem)).orElseThrow(() ->
-                new IllegalStateException("Ошибка конвертации Item->ItemDto. Метод вернул null."));
+        return itemMapper.itemToItemDto(foundItem);
     }
 
     @Override
-    public List<ItemDto> getItemListByUserId(long userId) {
-        return itemRepository.findItemsByOwnerIdOrderByIdAsc(userId).stream()
-                .map(this::addNextAndLastBookings)
-                .map(itemMapper::itemToItemDto)
-                .collect(Collectors.toList());
+    public List<ItemDto> getItemListByUserId(long userId, Long from, Long size) {
+        if (from != null && size != null) {
+            Pageable pageable = PageRequest.of(from.intValue(), size.intValue());
+            return itemRepository.findItemsByOwnerIdOrderByIdAsc(userId, pageable).stream()
+                    .map(this::addNextAndLastBookings)
+                    .map(itemMapper::itemToItemDto)
+                    .collect(Collectors.toList());
+        } else {
+            return itemRepository.findItemsByOwnerIdOrderByIdAsc(userId).stream()
+                    .map(this::addNextAndLastBookings)
+                    .map(itemMapper::itemToItemDto)
+                    .collect(Collectors.toList());
+        }
     }
 
     @Override
-    public List<ItemDto> searchItemsByText(@NonNull String text) {
-        return itemRepository.searchItemsByText(text).stream()
-                .map(itemMapper::itemToItemDto)
-                .collect(Collectors.toList());
+    public List<ItemDto> searchItemsByText(@NonNull String text, Long from, Long size) {
+        if (from != null && size != null) {
+            Pageable pageable = PageRequest.of(from.intValue(), size.intValue());
+            return itemRepository.searchItemsByText(text, pageable).stream()
+                    .map(itemMapper::itemToItemDto)
+                    .collect(Collectors.toList());
+        } else {
+            return itemRepository.searchItemsByText(text).stream()
+                    .map(itemMapper::itemToItemDto)
+                    .collect(Collectors.toList());
+        }
     }
 
     @Transactional
@@ -111,17 +121,14 @@ public class ItemServiceImpl implements ItemService {
                     + itemId);
         }
 
-        Comment comment = Optional.ofNullable(commentMapper.createdCoomentDtoToComment(createdCommentDto))
-                .orElseThrow(() -> new IllegalStateException("Ошибка конвертации commentDto->Comment." +
-                        " Метод вернул null"));
+        Comment comment = commentMapper.createdCoomentDtoToComment(createdCommentDto);
         comment.setItem(item);
         comment.setAuthor(author);
         Comment savedComment = commentRepository.save(comment);
         Comment uploadedComment = commentRepository.findById(savedComment.getId())
-                        .orElseThrow(() -> new IllegalStateException("Ошибка при загрузке Comment." +
-                                " Метод вернул null."));
-        return Optional.ofNullable(commentMapper.commentToCommentDto(uploadedComment)).orElseThrow(() ->
-                new IllegalStateException("Ошибка конвертации CommentDto->Comment. Метод вернул null."));
+                .orElseThrow(() -> new IllegalStateException("Ошибка при загрузке Comment." +
+                        " Метод вернул null."));
+        return commentMapper.commentToCommentDto(uploadedComment);
     }
 
     private Item addNextAndLastBookings(Item item) {
