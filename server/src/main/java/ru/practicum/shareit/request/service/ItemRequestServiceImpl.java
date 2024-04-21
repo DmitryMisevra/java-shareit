@@ -76,8 +76,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id: " + userId + " не найден"));
 
-        QItemRequest qItemRequest = QItemRequest.itemRequest;
         JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
+        QItemRequest qItemRequest = QItemRequest.itemRequest;
 
         JPAQuery<ItemRequestDto> query = queryFactory
                 .select(Projections.constructor(ItemRequestDto.class,
