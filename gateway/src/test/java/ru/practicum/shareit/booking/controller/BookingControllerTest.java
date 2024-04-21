@@ -60,8 +60,8 @@ public class BookingControllerTest {
 
     CreatedBookingDto createdBookingDto = CreatedBookingDto.builder()
             .itemId(1L)
-            .start(LocalDateTime.of(2024, Month.FEBRUARY, 5, 15, 30))
-            .end(LocalDateTime.of(2024, Month.FEBRUARY, 10, 12, 0))
+            .start(LocalDateTime.of(2025, Month.FEBRUARY, 5, 15, 30))
+            .end(LocalDateTime.of(2026, Month.FEBRUARY, 10, 12, 0))
             .build();
 
     BookingDto bookingDto = BookingDto.builder()
